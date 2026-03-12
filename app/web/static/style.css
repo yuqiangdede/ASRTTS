@@ -1,0 +1,254 @@
+:root {
+  --bg: #f2efe8;
+  --panel: rgba(255, 252, 246, 0.92);
+  --border: rgba(53, 43, 33, 0.14);
+  --text: #2b2118;
+  --muted: #746456;
+  --accent: #0d8b78;
+  --accent-strong: #0c6f61;
+  --shadow: 0 20px 60px rgba(38, 31, 24, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 153, 0.42), transparent 26%),
+    radial-gradient(circle at top right, rgba(94, 177, 191, 0.25), transparent 24%),
+    linear-gradient(135deg, #f6efe3 0%, #edf3ee 45%, #ebf0f7 100%);
+  overflow: hidden;
+}
+
+.page-shell {
+  width: min(1180px, calc(100vw - 20px));
+  margin: 0 auto;
+  height: 100vh;
+  padding: 12px 0;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 16px 4px 26px;
+}
+
+.eyebrow,
+.section-tag {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  color: var(--accent-strong);
+}
+
+.hero h1,
+.card h2 {
+  margin: 0;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+}
+
+.subtitle {
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.hero-status {
+  min-width: 270px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  height: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.inline-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea,
+button,
+.link-btn {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid rgba(61, 53, 45, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+textarea {
+  min-height: 86px;
+  resize: none;
+}
+
+button,
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+button:hover,
+.link-btn:hover {
+  transform: translateY(-1px);
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #1e9d89 100%);
+  color: #fff;
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(61, 53, 45, 0.16);
+}
+
+.disabled,
+button:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.record-box,
+.result-box,
+.upload-zone {
+  border: 1px dashed rgba(61, 53, 45, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.record-box,
+.result-box {
+  padding: 12px;
+}
+
+.record-actions,
+.inline-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.upload-zone {
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.upload-zone span {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.hint,
+.result-meta {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+#tts_player {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .page-shell {
+    width: min(100vw - 16px, 1180px);
+    height: auto;
+    padding-top: 10px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .inline-fields {
+    grid-template-columns: 1fr;
+  }
+
+  body {
+    height: auto;
+    overflow: auto;
+  }
+}

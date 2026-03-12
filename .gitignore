@@ -1,0 +1,13 @@
+.venv/
+.idea/
+__pycache__/
+*.pyc
+.modelscope_cache/
+res/uploads/*
+!res/uploads/.gitkeep
+res/tts_output/*
+!res/tts_output/.gitkeep
+faster-whisper-large-v3-turbo/
+faster-whisper-small/
+models/Fun-ASR-Nano-2512/
+models/speech_fsmn_vad_zh-cn-16k-common-pytorch/

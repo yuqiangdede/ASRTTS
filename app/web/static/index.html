@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ASR + MeloTTS</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="grid">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <p class="section-tag">ASR</p>
+              <h2>语音转文本</h2>
+            </div>
+            <button id="clear_asr" class="ghost">清空</button>
+          </div>
+
+          <div class="stack">
+            <div class="inline-fields">
+              <label class="field">
+                <span>ASR 后端</span>
+                <select id="asr_backend">
+                  <option value="whisper">whisper</option>
+                  <option value="whisper_small">whisper_small</option>
+                  <option value="funasr_nano">funasr_nano</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>识别语言</span>
+                <select id="asr_language">
+                  <option value="zh">中文</option>
+                  <option value="en">英文</option>
+                  <option value="">自动检测</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="record-box">
+              <div class="record-actions">
+                <button id="start_record" class="primary">开始录音</button>
+                <button id="stop_record" class="ghost" disabled>停止并识别</button>
+              </div>
+              <p id="record_status" class="hint">可直接录音，或上传本地音频文件后识别。</p>
+            </div>
+
+            <label class="upload-zone">
+              <input id="audio_file" type="file" accept=".wav,.mp3,.m4a,.webm,.ogg,.aac,.mp4" hidden />
+              <span>选择音频文件识别</span>
+            </label>
+
+            <div class="result-box">
+              <div class="result-meta" id="asr_meta">等待识别</div>
+              <label class="field">
+                <span id="asr_raw_label">原始文本</span>
+                <textarea id="asr_raw_text" readonly placeholder="ASR 原始识别结果"></textarea>
+              </label>
+              <label class="field">
+                <span id="asr_phrase_label">短语纠错后</span>
+                <textarea id="asr_phrase_text" readonly placeholder="短语级纠错结果"></textarea>
+              </label>
+              <label class="field">
+                <span id="asr_final_label">大模型纠正后</span>
+                <textarea id="asr_final_text" readonly placeholder="规则和大模型处理后的最终结果"></textarea>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <p class="section-tag">TTS</p>
+              <h2>文本转语音</h2>
+            </div>
+            <button id="play_latest" class="ghost" disabled>播放最新</button>
+          </div>
+
+          <div class="stack">
+            <label class="field">
+              <span>语言</span>
+              <select id="tts_language">
+                <option value="auto">自动判断</option>
+                <option value="zh">中文</option>
+                <option value="en">英文</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>语速</span>
+              <input id="tts_speed" type="number" min="0.6" max="1.6" step="0.1" value="1.0" />
+            </label>
+
+            <label class="field">
+              <span>文本</span>
+              <textarea id="tts_text" placeholder="输入要合成的中文或英文文本"></textarea>
+            </label>
+
+            <div class="inline-actions">
+              <button id="tts_submit" class="primary">生成音频</button>
+              <a id="tts_download" class="ghost link-btn disabled" href="#" download>下载音频</a>
+            </div>
+
+            <div class="result-box">
+              <div class="result-meta" id="tts_meta">等待合成</div>
+              <audio id="tts_player" controls preload="none"></audio>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
