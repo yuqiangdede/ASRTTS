@@ -1,6 +1,6 @@
 {
   "asr": {
-    "backend": "funasr_nano",
+    "backend": "paraformer",
     "device": "cuda",
     "cuda_bin_dir": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.6\\bin",
     "compute_type": "int8_float32",
@@ -8,6 +8,13 @@
     "funasr_nano": {
       "model_path": "models/Fun-ASR-Nano-2512",
       "vad_model_path": "models/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+      "use_prompt_terms_as_hotwords": true,
+      "hotword_mode": "full",
+      "max_hotwords": 200,
+      "hotwords": []
+    },
+    "paraformer": {
+      "model_path": "models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
       "use_prompt_terms_as_hotwords": true,
       "hotword_mode": "full",
       "max_hotwords": 200,

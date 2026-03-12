@@ -22,6 +22,11 @@ RUNTIME_FILES = {
     "runtime/decode.py": "https://raw.githubusercontent.com/FunAudioLLM/Fun-ASR/main/decode.py",
     "runtime/tools/utils.py": "https://raw.githubusercontent.com/FunAudioLLM/Fun-ASR/main/tools/utils.py",
 }
+REQUIRED_MODEL_FILES = [
+    "config.yaml",
+    "model.pt",
+    "Qwen3-0.6B/config.json",
+]
 
 
 def project_root() -> Path:
@@ -54,10 +59,29 @@ def iter_files(items: list[dict]) -> list[str]:
     return files
 
 
-def should_skip_download(dst: Path) -> bool:
+def is_non_empty_file(dst: Path) -> bool:
     if not dst.exists() or not dst.is_file():
         return False
-    return True
+    try:
+        return dst.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def should_skip_download(dst: Path) -> bool:
+    return is_non_empty_file(dst)
+
+
+def print_required_file_status(root: Path) -> list[str]:
+    missing: list[str] = []
+    for rel_path in REQUIRED_MODEL_FILES:
+        file_path = root / rel_path
+        if is_non_empty_file(file_path):
+            print(f"[check] ok: {rel_path}")
+        else:
+            print(f"[check] missing_or_empty: {rel_path}")
+            missing.append(rel_path)
+    return missing
 
 
 def download_file(rel_path: str) -> None:
@@ -114,9 +138,12 @@ def copy_vad_from_cache(target: Path) -> bool:
 
 def download_vad_model() -> None:
     target = vad_target_root()
-    if target.is_dir():
+    missing = print_vad_required_file_status(target)
+    if target.is_dir() and not missing:
         print(f"[skip] {target} already exists")
         return
+    if target.is_dir() and missing:
+        print(f"[check] {target} 缺少必需文件，将继续下载/补齐: {', '.join(missing)}")
 
     try:
         from modelscope.hub.snapshot_download import snapshot_download
@@ -137,7 +164,24 @@ def download_vad_model() -> None:
         if not copy_vad_from_cache(target):
             raise RuntimeError("VAD 模型下载完成，但项目目录中未找到结果。")
 
+    missing = print_vad_required_file_status(target)
+    if missing:
+        raise RuntimeError(f"VAD 模型目录仍缺少必需文件：{', '.join(missing)}")
+
     print(f"[done] {target}")
+
+
+def print_vad_required_file_status(target: Path) -> list[str]:
+    required = ["am.mvn", "config.yaml", "configuration.json", "model.pt"]
+    missing: list[str] = []
+    for relative_path in required:
+        file_path = target / relative_path
+        if is_non_empty_file(file_path):
+            print(f"[check] ok: {relative_path}")
+        else:
+            print(f"[check] missing: {relative_path}")
+            missing.append(relative_path)
+    return missing
 
 
 def main() -> int:
@@ -149,6 +193,9 @@ def main() -> int:
     print(f"[manual] FunASR: {MODEL_PAGE_URL}")
     print(f"[manual] VAD: {VAD_MODEL_PAGE_URL}")
     print(f"[target] {root}")
+    missing = print_required_file_status(root)
+    if missing:
+        print(f"[check] 主模型存在缺失或空文件，将继续下载/补齐: {', '.join(missing)}")
     try:
         tree = fetch_tree()
     except Exception as exc:
@@ -172,6 +219,12 @@ def main() -> int:
         print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
         return 1
     ensure_text_file("runtime/tools/__init__.py", "")
+    missing = print_required_file_status(root)
+    if missing:
+        print(f"[error] FunASR 主模型目录仍缺少或为空文件: {', '.join(missing)}")
+        print(f"[hint] 可手工下载后放入目录: {root}")
+        print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
+        return 1
     try:
         download_vad_model()
     except Exception as exc:

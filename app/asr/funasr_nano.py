@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import logging
 import shutil
 import sys
@@ -149,8 +150,8 @@ class FunAsrNano:
             return str(target)
 
         raise RuntimeError(
-            f"FunASR VAD 模型不存在：{target}。请执行 scripts\\download_funasr_nano.py，"
-            "确保所有模型都下载到项目目录内。"
+            f"FunASR VAD 模型不存在：{target}。请执行 scripts\\download_funasr_vad.py，"
+            "或执行 scripts\\download_funasr_nano.py 下载安装整套 FunASR 资源。"
         )
 
     def _ensure_model_no_vad(self) -> Any:
@@ -287,6 +288,17 @@ class FunAsrNano:
                     return "".join(str(item) for item in value).strip()
             return "".join(str(item) for item in result).strip()
         return str(result or "").strip()
+
+    def close(self) -> None:
+        self._model = None
+        self._model_no_vad = None
+        self._auto_model_class = None
+        gc.collect()
+        try:
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
 
 
 

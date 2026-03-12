@@ -9,10 +9,12 @@ from typing import Any, Callable
 from app.audio import decode_audio_to_pcm16, split_pcm16_by_silence
 from app.asr.correction import AsrCorrectionClient
 from app.asr.funasr_nano import FunAsrNano
+from app.asr.paraformer import ParaformerAsr
 from app.asr.whisper import WhisperAsr
 from app.config import resolve_path
 from config_loader import DomainConfigLoader
 from pipeline import AsrEnhancementPipeline
+from phrase_corrector import PhraseCorrector
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +51,23 @@ class AsrService:
         self.funasr_use_prompt_terms_as_hotwords = bool(funasr_cfg.get("use_prompt_terms_as_hotwords", True))
         self.funasr_hotword_mode = str(funasr_cfg.get("hotword_mode", "compact") or "compact").strip().lower()
         self.funasr_max_hotwords = int(funasr_cfg.get("max_hotwords", 24) or 24)
+        self.funasr_release_after_inference = bool(funasr_cfg.get("release_after_inference", False))
+        paraformer_cfg = asr_cfg.get("paraformer", {}) if isinstance(asr_cfg.get("paraformer"), dict) else {}
+        self.paraformer_model_path = str(
+            resolve_path(
+                str(
+                    paraformer_cfg.get(
+                        "model_path",
+                        "models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+                    )
+                    or "models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
+                )
+            )
+        )
+        self.paraformer_hotwords = [str(item).strip() for item in paraformer_cfg.get("hotwords", []) if str(item).strip()]
+        self.paraformer_use_prompt_terms_as_hotwords = bool(paraformer_cfg.get("use_prompt_terms_as_hotwords", True))
+        self.paraformer_hotword_mode = str(paraformer_cfg.get("hotword_mode", "full") or "full").strip().lower()
+        self.paraformer_max_hotwords = int(paraformer_cfg.get("max_hotwords", 200) or 200)
 
         self.domain_profiles_path = resolve_path(str(post_cfg.get("domain_profiles_path", "domain_profiles.yaml") or "domain_profiles.yaml"))
         self.common_terms_path = resolve_path(str(post_cfg.get("common_terms_path", "security_terms.yaml") or "security_terms.yaml"))
@@ -62,10 +81,12 @@ class AsrService:
             default_domain=self.default_domain,
             correction_client=self.correction_client,
         )
+        self.text_normalizer = PhraseCorrector()
 
         self._lock = threading.Lock()
         self._model: WhisperAsr | None = None
         self._funasr_model: FunAsrNano | None = None
+        self._paraformer_model: ParaformerAsr | None = None
 
     def _whisper_download_script(self) -> str:
         model_name = Path(self.model_path).name.lower()
@@ -114,6 +135,56 @@ class AsrService:
                 )
             return self._funasr_model
 
+    def _get_paraformer_model(self) -> ParaformerAsr:
+        with self._lock:
+            if self._paraformer_model is None:
+                if not Path(self.paraformer_model_path).exists():
+                    raise RuntimeError(
+                        f"Paraformer 模型不存在：{self.paraformer_model_path}。"
+                        "请先执行 scripts\\download_paraformer.py。"
+                    )
+                self._paraformer_model = ParaformerAsr(
+                    model_path=self.paraformer_model_path,
+                    device=self.device,
+                    hotwords=self.paraformer_hotwords,
+                )
+            return self._paraformer_model
+
+    def _release_whisper_model(self) -> None:
+        with self._lock:
+            model = self._model
+            self._model = None
+        if model is not None and hasattr(model, "close"):
+            try:
+                model.close()
+            except Exception:
+                logger.warning("释放 Whisper 模型失败", exc_info=True)
+
+    def _release_funasr_model(self) -> None:
+        with self._lock:
+            model = self._funasr_model
+            self._funasr_model = None
+        if model is not None and hasattr(model, "close"):
+            try:
+                model.close()
+            except Exception:
+                logger.warning("释放 FunASR 模型失败", exc_info=True)
+
+    def _release_paraformer_model(self) -> None:
+        with self._lock:
+            model = self._paraformer_model
+            self._paraformer_model = None
+        if model is not None and hasattr(model, "close"):
+            try:
+                model.close()
+            except Exception:
+                logger.warning("释放 Paraformer 模型失败", exc_info=True)
+
+    def close(self) -> None:
+        self._release_whisper_model()
+        self._release_funasr_model()
+        self._release_paraformer_model()
+
     def _should_retry_with_fallback(self, *, explicit_language: str | None, result_text: str, result_language: str, result_prob: float) -> bool:
         if explicit_language:
             return False
@@ -160,6 +231,14 @@ class AsrService:
                 profile_prompt_terms=profile.prompt_terms,
                 progress_callback=progress_callback,
             )
+        if self.backend == "paraformer":
+            return self._transcribe_file_with_paraformer(
+                audio_path=audio_path,
+                active_domain=active_domain,
+                initial_prompt=initial_prompt,
+                profile_prompt_terms=profile.prompt_terms,
+                progress_callback=progress_callback,
+            )
 
         pcm16_bytes, sample_rate, duration_s = decode_audio_to_pcm16(audio_path, sample_rate=16000)
         explicit_language = (language or "").strip().lower() or None
@@ -171,7 +250,8 @@ class AsrService:
             initial_prompt=(initial_prompt or None),
         )
         used_fallback_language = ""
-        raw_text = result.text.strip()
+        raw_text_original = result.text.strip()
+        raw_text = self.text_normalizer.normalize_text(raw_text_original)
         result_language = (result.language or "").strip().lower()
         result_prob = float(result.language_probability or 0.0)
 
@@ -190,16 +270,19 @@ class AsrService:
             retry_text = retry_result.text.strip()
             if retry_text:
                 result = retry_result
-                raw_text = retry_text
+                raw_text_original = retry_text
+                raw_text = self.text_normalizer.normalize_text(raw_text_original)
                 result_language = (retry_result.language or "").strip().lower() or self.auto_fallback_language
                 result_prob = float(retry_result.language_probability or 0.0)
                 used_fallback_language = self.auto_fallback_language
         asr_elapsed_ms = (time.perf_counter() - asr_started) * 1000.0
+        logger.info("ASR raw original text: backend=%s text=%s", self.backend, raw_text_original[:500])
 
         self._emit_progress(
             progress_callback,
             {
                 "event": "raw_text",
+                "raw_text_original": raw_text_original,
                 "raw_text": raw_text,
                 "backend": self.backend,
                 "domain": active_domain,
@@ -219,6 +302,7 @@ class AsrService:
         return {
             "backend": self.backend,
             "text": processed["final_text"],
+            "raw_text_original": processed["raw_text_original"],
             "raw_text": processed["raw_text"],
             "text_after_phrase": processed["text_after_phrase"],
             "final_text": processed["final_text"],
@@ -272,14 +356,102 @@ class AsrService:
             hotwords=hotwords,
         )
         asr_elapsed_ms = (time.perf_counter() - asr_started) * 1000.0
-        raw_text = str(result.get("text", "") or "").strip()
+        raw_text_original = str(result.get("text", "") or "").strip()
+        raw_text = self.text_normalizer.normalize_text(raw_text_original)
         result_language = str(result.get("language", "zh") or "zh").strip().lower()
         result_prob = float(result.get("language_probability", 1.0) or 1.0)
+        logger.info("ASR raw original text: backend=%s text=%s", self.backend, raw_text_original[:500])
 
         self._emit_progress(
             progress_callback,
             {
                 "event": "raw_text",
+                "raw_text_original": raw_text_original,
+                "raw_text": raw_text,
+                "backend": self.backend,
+                "domain": active_domain,
+                "initial_prompt": initial_prompt,
+                "language": result_language,
+                "language_probability": result_prob,
+                "used_fallback_language": "",
+                "duration_s": duration_s,
+                "sample_rate": sample_rate,
+                "asr_elapsed_ms": asr_elapsed_ms,
+                "hotwords": hotwords,
+            },
+        )
+
+        try:
+            processed = self.pipeline.process_text(raw_text, domain=active_domain, progress_callback=progress_callback)
+            return {
+                "backend": self.backend,
+                "text": processed["final_text"],
+                "raw_text_original": processed["raw_text_original"],
+                "raw_text": processed["raw_text"],
+                "text_after_phrase": processed["text_after_phrase"],
+                "final_text": processed["final_text"],
+                "applied_rules": processed["applied_rules"],
+                "domain": processed["domain"],
+                "llm_correction_applied": processed["llm_correction_applied"],
+                "correction_error": processed["correction_error"],
+                "initial_prompt": initial_prompt,
+                "language": result_language,
+                "language_probability": result_prob,
+                "used_fallback_language": "",
+                "duration_s": duration_s,
+                "sample_rate": sample_rate,
+                "asr_elapsed_ms": asr_elapsed_ms,
+                "phrase_elapsed_ms": processed["phrase_elapsed_ms"],
+                "confusion_elapsed_ms": processed["confusion_elapsed_ms"],
+                "llm_elapsed_ms": processed["llm_elapsed_ms"],
+                "postprocess_elapsed_ms": processed["postprocess_elapsed_ms"],
+                "hotwords": hotwords,
+            }
+        finally:
+            if self.funasr_release_after_inference:
+                logger.info("FunASR 推理完成，按配置释放模型与显存。")
+                self._release_funasr_model()
+
+    def _transcribe_file_with_paraformer(
+        self,
+        *,
+        audio_path: str | Path,
+        active_domain: str,
+        initial_prompt: str,
+        profile_prompt_terms: list[str],
+        progress_callback: Callable[[dict[str, Any]], None] | None,
+    ) -> dict[str, Any]:
+        pcm16_bytes, sample_rate, duration_s = decode_audio_to_pcm16(audio_path, sample_rate=16000)
+        hotwords = [*self.paraformer_hotwords]
+        if self.paraformer_use_prompt_terms_as_hotwords:
+            selected_terms = self._select_hotwords(
+                profile_prompt_terms,
+                mode=self.paraformer_hotword_mode,
+                max_count=self.paraformer_max_hotwords,
+            )
+            for term in selected_terms:
+                if term not in hotwords:
+                    hotwords.append(term)
+
+        asr_started = time.perf_counter()
+        result = self._get_paraformer_model().transcribe_pcm16(
+            pcm16_bytes,
+            sample_rate=sample_rate,
+            hotwords=hotwords,
+            source_label=str(Path(audio_path).resolve()),
+        )
+        asr_elapsed_ms = (time.perf_counter() - asr_started) * 1000.0
+        raw_text_original = str(result.get("text", "") or "").strip()
+        raw_text = self.text_normalizer.normalize_text(raw_text_original)
+        result_language = str(result.get("language", "zh") or "zh").strip().lower()
+        result_prob = float(result.get("language_probability", 1.0) or 1.0)
+        logger.info("ASR raw original text: backend=%s text=%s", self.backend, raw_text_original[:500])
+
+        self._emit_progress(
+            progress_callback,
+            {
+                "event": "raw_text",
+                "raw_text_original": raw_text_original,
                 "raw_text": raw_text,
                 "backend": self.backend,
                 "domain": active_domain,
@@ -298,6 +470,7 @@ class AsrService:
         return {
             "backend": self.backend,
             "text": processed["final_text"],
+            "raw_text_original": processed["raw_text_original"],
             "raw_text": processed["raw_text"],
             "text_after_phrase": processed["text_after_phrase"],
             "final_text": processed["final_text"],
@@ -374,8 +547,15 @@ class AsrService:
         return "，".join(cleaned)
 
     def _select_funasr_hotwords(self, profile_prompt_terms: list[str]) -> list[str]:
+        return self._select_hotwords(
+            profile_prompt_terms,
+            mode=self.funasr_hotword_mode,
+            max_count=self.funasr_max_hotwords,
+        )
+
+    def _select_hotwords(self, profile_prompt_terms: list[str], *, mode: str, max_count: int) -> list[str]:
         terms = [str(item).strip() for item in profile_prompt_terms if str(item).strip()]
-        if self.funasr_hotword_mode == "full":
+        if mode == "full":
             return terms
 
         prioritized: list[str] = []
@@ -390,7 +570,7 @@ class AsrService:
                 continue
             seen.add(term)
             result.append(term)
-            if len(result) >= self.funasr_max_hotwords:
+            if len(result) >= max_count:
                 break
         return result
 

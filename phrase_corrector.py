@@ -1,12 +1,27 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
 class PhraseCorrector:
-    def apply(self, text: str, rules: list[dict[str, Any]]) -> tuple[str, list[dict[str, Any]]]:
+    def apply(self, text: str, rules: list[dict[str, Any]], *, normalize_spacing: bool = True) -> tuple[str, list[dict[str, Any]]]:
         current = str(text or "")
         applied: list[dict[str, Any]] = []
+
+        normalized = self.normalize_text(current) if normalize_spacing else current
+        if normalize_spacing and normalized != current:
+            applied.append(
+                {
+                    "stage": "phrase",
+                    "rule": "normalize_asr_spacing",
+                    "pattern": current,
+                    "replacement": normalized,
+                    "before": current,
+                    "after": normalized,
+                }
+            )
+            current = normalized
 
         for rule in rules:
             replacement = str(rule.get("replacement", "") or "").strip()
@@ -32,3 +47,24 @@ class PhraseCorrector:
                 )
 
         return current, applied
+
+    @staticmethod
+    def normalize_text(text: str) -> str:
+        current = str(text or "")
+        if not current or " " not in current:
+            return current
+
+        cjk_or_digit = r"\u4e00-\u9fff0-9"
+        zh_punct = r"，。！？；：、（）《》【】“”‘’"
+
+        patterns = [
+            rf"(?<=[{cjk_or_digit}])\s+(?=[{cjk_or_digit}])",
+            rf"(?<=[{cjk_or_digit}])\s+(?=[{zh_punct}])",
+            rf"(?<=[{zh_punct}])\s+(?=[{cjk_or_digit}])",
+        ]
+
+        normalized = current
+        for pattern in patterns:
+            normalized = re.sub(pattern, "", normalized)
+        normalized = re.sub(r"\s{2,}", " ", normalized).strip()
+        return normalized

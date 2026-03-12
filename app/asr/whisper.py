@@ -14,10 +14,12 @@ import os
 import platform
 import ctypes
 import time
+import gc
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -399,6 +401,16 @@ class WhisperAsr:
                 logger.warning("Whisper CPU 语种识别失败，将回退 transcribe 自动识别：%s", exc)
 
         return _transcribe_with_cuda_fallback(lang_for_transcribe=None)
+
+    def close(self) -> None:
+        self._model = None
+        self._cpu_lang_detector = None
+        gc.collect()
+        try:
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        except Exception:
+            pass
 
 
 def _whisper_asr_worker(  # pragma: no cover

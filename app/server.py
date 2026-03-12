@@ -40,6 +40,9 @@ ASR_BACKEND_PRESETS = {
         "backend": "whisper",
         "model_path": "faster-whisper-small",
     },
+    "paraformer": {
+        "backend": "paraformer",
+    },
     "funasr_nano": {
         "backend": "funasr_nano",
     },
@@ -105,14 +108,21 @@ def _reload_asr_service(config: dict) -> AsrService:
 
     new_service = AsrService(config)
     with ASR_SERVICE_LOCK:
+        old_service = ASR_SERVICE
         ASR_SERVICE = new_service
         CONFIG = config
-        return ASR_SERVICE
+    try:
+        old_service.close()
+    except Exception:
+        logger.warning("释放旧 ASR 服务资源失败", exc_info=True)
+    return ASR_SERVICE
 
 
 def _current_backend_selection(asr_service: AsrService) -> str:
     if asr_service.backend == "funasr_nano":
         return "funasr_nano"
+    if asr_service.backend == "paraformer":
+        return "paraformer"
     model_name = Path(asr_service.model_path).name.lower()
     if "small" in model_name:
         return "whisper_small"
@@ -130,7 +140,12 @@ def create_app() -> FastAPI:
     @app.get("/api/health")
     async def health() -> dict:
         asr_service = _get_asr_service()
-        model_display = asr_service.funasr_model_path if asr_service.backend == "funasr_nano" else asr_service.model_path
+        if asr_service.backend == "funasr_nano":
+            model_display = asr_service.funasr_model_path
+        elif asr_service.backend == "paraformer":
+            model_display = asr_service.paraformer_model_path
+        else:
+            model_display = asr_service.model_path
         return {
             "ok": True,
             "asr_backend": asr_service.backend,
@@ -151,6 +166,7 @@ def create_app() -> FastAPI:
             "options": [
                 {"value": "whisper", "label": "whisper"},
                 {"value": "whisper_small", "label": "whisper_small"},
+                {"value": "paraformer", "label": "paraformer"},
                 {"value": "funasr_nano", "label": "funasr_nano"},
             ],
         }
@@ -167,7 +183,12 @@ def create_app() -> FastAPI:
             logger.exception("Switch ASR backend failed")
             raise HTTPException(status_code=500, detail=f"切换 ASR 后端失败：{exc}") from exc
 
-        model_display = asr_service.funasr_model_path if asr_service.backend == "funasr_nano" else asr_service.model_path
+        if asr_service.backend == "funasr_nano":
+            model_display = asr_service.funasr_model_path
+        elif asr_service.backend == "paraformer":
+            model_display = asr_service.paraformer_model_path
+        else:
+            model_display = asr_service.model_path
         return {
             "ok": True,
             "backend": _current_backend_selection(asr_service),

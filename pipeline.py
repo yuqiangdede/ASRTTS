@@ -36,15 +36,23 @@ class AsrEnhancementPipeline:
     ) -> dict:
         target_domain = domain or self.default_domain
         profile = self.config_loader.get_profile(target_domain)
+        raw_text_original = str(raw_text or "")
+        normalized_raw_text = self.phrase_corrector.normalize_text(raw_text_original)
 
         phrase_started = time.perf_counter()
-        text_after_phrase, phrase_rules = self.phrase_corrector.apply(raw_text, profile.phrase_rules)
+        text_after_phrase, phrase_rules = self.phrase_corrector.apply(
+            normalized_raw_text,
+            profile.phrase_rules,
+            normalize_spacing=False,
+        )
         phrase_elapsed_ms = (time.perf_counter() - phrase_started) * 1000.0
         self._emit_progress(
             progress_callback,
             {
                 "event": "phrase_text",
                 "domain": profile.name,
+                "raw_text_original": raw_text_original,
+                "raw_text": normalized_raw_text,
                 "text_after_phrase": text_after_phrase,
                 "applied_rules": phrase_rules,
                 "phrase_elapsed_ms": phrase_elapsed_ms,
@@ -62,6 +70,9 @@ class AsrEnhancementPipeline:
             {
                 "event": "final_text",
                 "domain": profile.name,
+                "raw_text_original": raw_text_original,
+                "raw_text": normalized_raw_text,
+                "text_after_phrase": text_after_phrase,
                 "final_text": final_text,
                 "applied_rules": [*phrase_rules, *confusion_rules, *llm_rules],
                 "llm_correction_applied": bool(llm_rules),
@@ -73,7 +84,8 @@ class AsrEnhancementPipeline:
         )
 
         return {
-            "raw_text": raw_text,
+            "raw_text_original": raw_text_original,
+            "raw_text": normalized_raw_text,
             "text_after_phrase": text_after_phrase,
             "final_text": final_text,
             "applied_rules": [*phrase_rules, *confusion_rules, *llm_rules],

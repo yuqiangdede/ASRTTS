@@ -15,6 +15,7 @@ faster-whisper-large-v3-turbo/
 faster-whisper-small/
 models/Fun-ASR-Nano-2512/
 models/speech_fsmn_vad_zh-cn-16k-common-pytorch/
+models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/
 models/melotts/cache/
 *.normalized.wav
 *.segment.wav

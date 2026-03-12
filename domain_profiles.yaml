@@ -230,18 +230,22 @@ domains:
         patterns:
           - 间墙
           - 建墙
+          - 肩强
         replacement: 监墙
       - name: prison_phrase_jianqiangfujin
         patterns:
           - 坚强附近
+          - 肩强附近
         replacement: 监墙附近
       - name: prison_phrase_jianqiangfujin_alt
         patterns:
           - 坚强附件
+          - 肩强附件
         replacement: 监墙附近
       - name: prison_phrase_jianqiangdianwei
         patterns:
           - 坚强点位
+          - 肩强点位
         replacement: 监墙点位
       - name: prison_phrase_dianwei
         patterns:
@@ -762,6 +766,7 @@ domains:
       - name: prison_confusion_jianqiang
         source_terms:
           - 坚强
+          - 肩强
         target_term: 监墙
         context_keywords:
           点位: 3

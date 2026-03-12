@@ -2,20 +2,22 @@
 
 本项目提供一个本地化的 ASR + TTS 服务：
 
-- ASR 支持 3 种模式
+- ASR 支持 4 种模式
   - `whisper`：`faster-whisper-large-v3-turbo`
   - `whisper_small`：`faster-whisper-small`
+  - `paraformer`：`speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch`
   - `funasr_nano`：`Fun-ASR-Nano-2512`
 - TTS 预留 `MeloTTS` 本地目录接入
 - ASR 后处理支持监所业务词表、短语纠错、混淆词纠错，以及可开关的大模型纠错
 
 注意：
 
-- 仓库默认**不包含** 3 种 ASR 模式对应的模型和附属资源
+- 仓库默认**不包含** 4 种 ASR 模式对应的模型和附属资源
 - 用哪个 ASR 模式，就执行对应的下载脚本
 - 下载后的模型都会放在项目目录内，方便后续整体迁移
 - Hugging Face 下载脚本默认走 `https://hf-mirror.com`
 - 各下载脚本会在运行时打印镜像页面地址，失败后可按提示手工下载
+- 所有下载脚本统一按“文件存在且大小大于 0 才跳过”的规则执行；若文件大小为 `0`，会视为损坏并重新覆盖下载
 
 ## 目录说明
 
@@ -36,7 +38,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-## 三种 ASR 模式的下载脚本
+## 四种 ASR 模式的下载脚本
 
 ### 1. whisper
 
@@ -66,12 +68,32 @@ faster-whisper-large-v3-turbo
 faster-whisper-small
 ```
 
-### 3. funasr_nano
+### 3. paraformer
+
+下载 `speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch`：
+
+```bat
+.venv\Scripts\python.exe scripts\download_paraformer.py
+```
+
+下载后模型目录：
+
+```text
+models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+```
+
+### 4. funasr_nano
 
 下载 `Fun-ASR-Nano-2512` 主模型、runtime 代码，以及 `VAD` 模型：
 
 ```bat
 .venv\Scripts\python.exe scripts\download_funasr_nano.py
+```
+
+如果只缺 `VAD` 模型，也可以单独执行：
+
+```bat
+.venv\Scripts\python.exe scripts\download_funasr_vad.py
 ```
 
 下载后模型目录：
@@ -116,6 +138,29 @@ models/speech_fsmn_vad_zh-cn-16k-common-pytorch
     "funasr_nano": {
       "model_path": "models/Fun-ASR-Nano-2512",
       "vad_model_path": "models/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+      "release_after_inference": false,
+      "use_prompt_terms_as_hotwords": true,
+      "hotword_mode": "full",
+      "max_hotwords": 200,
+      "hotwords": []
+    }
+  }
+}
+```
+
+其中：
+
+- `release_after_inference = false` 表示 `funasr_nano` 默认常驻内存/显存，只在切换后端时释放
+- 如果你更看重显存回收，也可以改成 `true`，让它每次识别完成后释放模型和显存
+
+### paraformer
+
+```json
+{
+  "asr": {
+    "backend": "paraformer",
+    "paraformer": {
+      "model_path": "models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
       "use_prompt_terms_as_hotwords": true,
       "hotword_mode": "full",
       "max_hotwords": 200,
@@ -175,6 +220,7 @@ http://127.0.0.1:8000/docs
 
 - `whisper`
 - `whisper_small`
+- `paraformer`
 - `funasr_nano`
 
 ### `POST /api/asr/backend`
@@ -222,6 +268,7 @@ TTS 合成接口。
 - `.venv`
 - `faster-whisper-large-v3-turbo`
 - `faster-whisper-small`
+- `models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch`
 - `models/Fun-ASR-Nano-2512`
 - `models/speech_fsmn_vad_zh-cn-16k-common-pytorch`
 - `res/uploads/*`

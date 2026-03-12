@@ -17,9 +17,18 @@ def target_root() -> Path:
     return project_root() / "faster-whisper-small"
 
 
+def is_non_empty_file(path: Path) -> bool:
+    if not path.exists() or not path.is_file():
+        return False
+    try:
+        return path.stat().st_size > 0
+    except OSError:
+        return False
+
+
 def is_downloaded(target: Path) -> bool:
     required = ["config.json", "model.bin", "tokenizer.json", "vocabulary.txt"]
-    return target.is_dir() and all((target / name).exists() for name in required)
+    return target.is_dir() and all(is_non_empty_file(target / name) for name in required)
 
 
 def main() -> int:
