@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import os
+import socket
+import time
+import urllib.request
 from pathlib import Path
-
 
 REPO_ID = "Systran/faster-whisper-large-v3-turbo"
 
@@ -20,25 +22,68 @@ def is_downloaded(target: Path) -> bool:
     return target.is_dir() and all((target / name).exists() for name in required)
 
 
+def check_dns(host: str) -> None:
+    ip = socket.gethostbyname(host)
+    print(f"[dns] {host} -> {ip}")
+
+
+def check_http(url: str, timeout: int = 15) -> None:
+    with urllib.request.urlopen(url, timeout=timeout) as resp:
+        print(f"[http] {url} -> {resp.status}")
+
+
+def precheck() -> None:
+    print("[precheck] start")
+    check_dns("huggingface.co")
+    check_dns("cdn-lfs.huggingface.co")
+    check_http(f"https://huggingface.co/api/models/{REPO_ID}")
+    print("[precheck] ok")
+
+
 def main() -> int:
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
     target = target_root()
+
     if is_downloaded(target):
         print(f"[skip] {target} already exists")
         return 0
 
     try:
         from huggingface_hub import snapshot_download
-    except Exception as exc:  # noqa: BLE001
-        raise RuntimeError("未安装 huggingface-hub，请先执行 pip install -r requirements.txt") from exc
+    except Exception as exc:
+        raise RuntimeError(
+            "未安装 huggingface-hub，请先执行 pip install -r requirements.txt"
+        ) from exc
 
     print(f"[download] {REPO_ID} -> {target}")
+    target.mkdir(parents=True, exist_ok=True)
+
     try:
-        snapshot_download(repo_id=REPO_ID, local_dir=str(target), resume_download=True)
-    except TypeError:
-        snapshot_download(repo_id=REPO_ID, local_dir=str(target))
-    print(f"[done] {target}")
-    return 0
+        precheck()
+    except Exception as exc:
+        print(f"[error] 网络预检查失败: {type(exc).__name__}: {exc}")
+        print("[hint] 重点检查 huggingface.co / cdn-lfs.huggingface.co / 企业DNS / 内网策略")
+        return 2
+
+    last_error: Exception | None = None
+    for attempt in range(1, 4):
+        try:
+            print(f"[try] attempt {attempt}/3")
+            snapshot_download(
+                repo_id=REPO_ID,
+                local_dir=str(target),
+                local_dir_use_symlinks=False,
+            )
+            print(f"[done] {target}")
+            return 0
+        except Exception as exc:
+            last_error = exc
+            print(f"[warn] 下载失败，第 {attempt} 次: {type(exc).__name__}: {exc}")
+            if attempt < 3:
+                time.sleep(3)
+
+    print(f"[error] 下载最终失败: {type(last_error).__name__}: {last_error}")
+    return 1
 
 
 if __name__ == "__main__":
