@@ -12,7 +12,9 @@ REPO_ID = "FunAudioLLM/Fun-ASR-Nano-2512"
 HF_ENDPOINT = "https://hf-mirror.com"
 API_URL = f"{HF_ENDPOINT}/api/models/{REPO_ID}/tree/main?recursive=1"
 BASE_DOWNLOAD_URL = f"{HF_ENDPOINT}/{REPO_ID}/resolve/main"
+MODEL_PAGE_URL = f"{HF_ENDPOINT}/{REPO_ID}"
 VAD_MODEL_ID = "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
+VAD_MODEL_PAGE_URL = f"{HF_ENDPOINT}/{VAD_MODEL_ID}"
 VAD_CACHE_DIR = Path.home() / ".cache" / "modelscope" / "hub" / "models" / "iic" / "speech_fsmn_vad_zh-cn-16k-common-pytorch"
 RUNTIME_FILES = {
     "runtime/model.py": "https://raw.githubusercontent.com/FunAudioLLM/Fun-ASR/main/model.py",
@@ -143,18 +145,40 @@ def main() -> int:
     os.environ.setdefault("HF_ENDPOINT", HF_ENDPOINT)
     root = target_root()
     root.mkdir(parents=True, exist_ok=True)
+    print(f"[mirror] {HF_ENDPOINT}")
+    print(f"[manual] FunASR: {MODEL_PAGE_URL}")
+    print(f"[manual] VAD: {VAD_MODEL_PAGE_URL}")
     print(f"[target] {root}")
-    tree = fetch_tree()
+    try:
+        tree = fetch_tree()
+    except Exception as exc:
+        print(f"[error] 获取文件清单失败: {type(exc).__name__}: {exc}")
+        print(f"[hint] 可手工访问模型页面: {MODEL_PAGE_URL}")
+        return 1
     files = iter_files(tree)
     if not files:
-        raise RuntimeError("未从 Hugging Face 获取到文件清单。")
+        print("[error] 未从 Hugging Face 获取到文件清单。")
+        print(f"[hint] 可手工访问模型页面: {MODEL_PAGE_URL}")
+        return 1
     print(f"[files] {len(files)}")
-    for rel_path in files:
-        download_file(rel_path)
-    for rel_path, url in RUNTIME_FILES.items():
-        download_runtime_file(rel_path, url)
+    try:
+        for rel_path in files:
+            download_file(rel_path)
+        for rel_path, url in RUNTIME_FILES.items():
+            download_runtime_file(rel_path, url)
+    except Exception as exc:
+        print(f"[error] FunASR 主模型下载失败: {type(exc).__name__}: {exc}")
+        print(f"[hint] 可手工下载后放入目录: {root}")
+        print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
+        return 1
     ensure_text_file("runtime/tools/__init__.py", "")
-    download_vad_model()
+    try:
+        download_vad_model()
+    except Exception as exc:
+        print(f"[error] VAD 模型下载失败: {type(exc).__name__}: {exc}")
+        print(f"[hint] 可手工下载后放入目录: {vad_target_root()}")
+        print(f"[hint] 模型页面: {VAD_MODEL_PAGE_URL}")
+        return 1
     print("[done] Fun-ASR-Nano-2512 下载完成。")
     return 0
 

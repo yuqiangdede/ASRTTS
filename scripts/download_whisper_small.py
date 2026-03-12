@@ -6,6 +6,7 @@ from pathlib import Path
 
 REPO_ID = "Systran/faster-whisper-small"
 HF_ENDPOINT = "https://hf-mirror.com"
+MODEL_PAGE_URL = f"{HF_ENDPOINT}/{REPO_ID}"
 
 
 def project_root() -> Path:
@@ -34,6 +35,8 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         raise RuntimeError("未安装 huggingface-hub，请先执行 pip install -r requirements.txt") from exc
 
+    print(f"[mirror] {HF_ENDPOINT}")
+    print(f"[manual] {MODEL_PAGE_URL}")
     print(f"[download] {REPO_ID} -> {target}")
     try:
         snapshot_download(
@@ -43,11 +46,22 @@ def main() -> int:
             endpoint=HF_ENDPOINT,
         )
     except TypeError:
-        snapshot_download(
-            repo_id=REPO_ID,
-            local_dir=str(target),
-            endpoint=HF_ENDPOINT,
-        )
+        try:
+            snapshot_download(
+                repo_id=REPO_ID,
+                local_dir=str(target),
+                endpoint=HF_ENDPOINT,
+            )
+        except Exception as exc:
+            print(f"[error] 下载失败: {type(exc).__name__}: {exc}")
+            print(f"[hint] 可手工下载后放入目录: {target}")
+            print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
+            return 1
+    except Exception as exc:
+        print(f"[error] 下载失败: {type(exc).__name__}: {exc}")
+        print(f"[hint] 可手工下载后放入目录: {target}")
+        print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
+        return 1
     print(f"[done] {target}")
     return 0
 

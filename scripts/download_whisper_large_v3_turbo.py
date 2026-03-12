@@ -8,6 +8,7 @@ from pathlib import Path
 
 REPO_ID = "Systran/faster-whisper-large-v3-turbo"
 HF_ENDPOINT = "https://hf-mirror.com"
+MODEL_PAGE_URL = f"{HF_ENDPOINT}/{REPO_ID}"
 
 
 def project_root() -> Path:
@@ -56,6 +57,8 @@ def main() -> int:
             "未安装 huggingface-hub，请先执行 pip install -r requirements.txt"
         ) from exc
 
+    print(f"[mirror] {HF_ENDPOINT}")
+    print(f"[manual] {MODEL_PAGE_URL}")
     print(f"[download] {REPO_ID} -> {target}")
     target.mkdir(parents=True, exist_ok=True)
 
@@ -64,6 +67,7 @@ def main() -> int:
     except Exception as exc:
         print(f"[error] 网络预检查失败: {type(exc).__name__}: {exc}")
         print("[hint] 重点检查 hf-mirror.com / 企业DNS / 内网策略")
+        print(f"[hint] 也可手工访问: {MODEL_PAGE_URL}")
         return 2
 
     last_error: Exception | None = None
@@ -85,6 +89,8 @@ def main() -> int:
                 time.sleep(3)
 
     print(f"[error] 下载最终失败: {type(last_error).__name__}: {last_error}")
+    print(f"[hint] 可手工下载后放入目录: {target}")
+    print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
     return 1
 
 
