@@ -7,6 +7,7 @@ import urllib.request
 from pathlib import Path
 
 REPO_ID = "Systran/faster-whisper-large-v3-turbo"
+HF_ENDPOINT = "https://hf-mirror.com"
 
 
 def project_root() -> Path:
@@ -34,14 +35,14 @@ def check_http(url: str, timeout: int = 15) -> None:
 
 def precheck() -> None:
     print("[precheck] start")
-    check_dns("huggingface.co")
-    check_dns("cdn-lfs.huggingface.co")
-    check_http(f"https://huggingface.co/api/models/{REPO_ID}")
+    check_dns("hf-mirror.com")
+    check_http(f"{HF_ENDPOINT}/api/models/{REPO_ID}")
     print("[precheck] ok")
 
 
 def main() -> int:
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+    os.environ.setdefault("HF_ENDPOINT", HF_ENDPOINT)
     target = target_root()
 
     if is_downloaded(target):
@@ -62,7 +63,7 @@ def main() -> int:
         precheck()
     except Exception as exc:
         print(f"[error] 网络预检查失败: {type(exc).__name__}: {exc}")
-        print("[hint] 重点检查 huggingface.co / cdn-lfs.huggingface.co / 企业DNS / 内网策略")
+        print("[hint] 重点检查 hf-mirror.com / 企业DNS / 内网策略")
         return 2
 
     last_error: Exception | None = None
@@ -73,6 +74,7 @@ def main() -> int:
                 repo_id=REPO_ID,
                 local_dir=str(target),
                 local_dir_use_symlinks=False,
+                endpoint=HF_ENDPOINT,
             )
             print(f"[done] {target}")
             return 0

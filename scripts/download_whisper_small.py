@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 REPO_ID = "Systran/faster-whisper-small"
+HF_ENDPOINT = "https://hf-mirror.com"
 
 
 def project_root() -> Path:
@@ -22,6 +23,7 @@ def is_downloaded(target: Path) -> bool:
 
 def main() -> int:
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+    os.environ.setdefault("HF_ENDPOINT", HF_ENDPOINT)
     target = target_root()
     if is_downloaded(target):
         print(f"[skip] {target} already exists")
@@ -34,9 +36,18 @@ def main() -> int:
 
     print(f"[download] {REPO_ID} -> {target}")
     try:
-        snapshot_download(repo_id=REPO_ID, local_dir=str(target), resume_download=True)
+        snapshot_download(
+            repo_id=REPO_ID,
+            local_dir=str(target),
+            resume_download=True,
+            endpoint=HF_ENDPOINT,
+        )
     except TypeError:
-        snapshot_download(repo_id=REPO_ID, local_dir=str(target))
+        snapshot_download(
+            repo_id=REPO_ID,
+            local_dir=str(target),
+            endpoint=HF_ENDPOINT,
+        )
     print(f"[done] {target}")
     return 0
 

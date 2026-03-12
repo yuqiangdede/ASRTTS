@@ -9,8 +9,9 @@ from urllib import parse, request
 
 
 REPO_ID = "FunAudioLLM/Fun-ASR-Nano-2512"
-API_URL = f"https://huggingface.co/api/models/{REPO_ID}/tree/main?recursive=1"
-BASE_DOWNLOAD_URL = f"https://huggingface.co/{REPO_ID}/resolve/main"
+HF_ENDPOINT = "https://hf-mirror.com"
+API_URL = f"{HF_ENDPOINT}/api/models/{REPO_ID}/tree/main?recursive=1"
+BASE_DOWNLOAD_URL = f"{HF_ENDPOINT}/{REPO_ID}/resolve/main"
 VAD_MODEL_ID = "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
 VAD_CACHE_DIR = Path.home() / ".cache" / "modelscope" / "hub" / "models" / "iic" / "speech_fsmn_vad_zh-cn-16k-common-pytorch"
 RUNTIME_FILES = {
@@ -139,6 +140,7 @@ def download_vad_model() -> None:
 
 def main() -> int:
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+    os.environ.setdefault("HF_ENDPOINT", HF_ENDPOINT)
     root = target_root()
     root.mkdir(parents=True, exist_ok=True)
     print(f"[target] {root}")
