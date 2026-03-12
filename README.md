@@ -28,8 +28,8 @@
 ## 创建项目内虚拟环境
 
 ```bat
-cd /d C:\Users\Administrator\Documents\Code\PythonCode\ASRTTS
-C:\Users\Administrator\AppData\Local\Programs\Python\Python311\python.exe -m venv .venv
+cd /d 你的项目目录
+python -m venv .venv
 .venv\Scripts\python.exe -m pip install --upgrade pip setuptools wheel
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -132,7 +132,7 @@ models/speech_fsmn_vad_zh-cn-16k-common-pytorch
 ## 启动服务
 
 ```bat
-cd /d C:\Users\Administrator\Documents\Code\PythonCode\ASRTTS
+cd /d 你的项目目录
 .venv\Scripts\python.exe -m app
 ```
 

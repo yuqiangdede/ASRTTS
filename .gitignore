@@ -2,6 +2,10 @@
 .idea/
 __pycache__/
 *.pyc
+*.pyo
+*.log
+*.tmp
+*.temp
 .modelscope_cache/
 res/uploads/*
 !res/uploads/.gitkeep
@@ -11,3 +15,7 @@ faster-whisper-large-v3-turbo/
 faster-whisper-small/
 models/Fun-ASR-Nano-2512/
 models/speech_fsmn_vad_zh-cn-16k-common-pytorch/
+models/melotts/cache/
+*.normalized.wav
+*.segment.wav
+*.segment*.wav
