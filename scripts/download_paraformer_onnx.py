@@ -5,15 +5,13 @@ import shutil
 from pathlib import Path
 
 
-MODEL_ID = "iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
-MODEL_PAGE_URL = "https://modelscope.cn/models/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/files"
-CACHE_DIR = Path.home() / ".cache" / "modelscope" / "hub" / "models" / "iic" / "speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
+MODEL_ID = "manyeyes/paraformer-seaco-large-zh-timestamp-int8-onnx-offline"
+MODEL_PAGE_URL = "https://modelscope.cn/models/manyeyes/paraformer-seaco-large-zh-timestamp-int8-onnx-offline/files"
+CACHE_DIR = Path.home() / ".cache" / "modelscope" / "hub" / "models" / "manyeyes" / "paraformer-seaco-large-zh-timestamp-int8-onnx-offline"
 REQUIRED_FILES = [
     "am.mvn",
     "config.yaml",
     "configuration.json",
-    "model.pt",
-    "seg_dict",
     "tokens.json",
 ]
 
@@ -23,7 +21,7 @@ def project_root() -> Path:
 
 
 def target_root() -> Path:
-    return project_root() / "models" / "speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
+    return project_root() / "models" / "paraformer-seaco-large-zh-timestamp-int8-onnx-offline"
 
 
 def is_non_empty_file(path: Path) -> bool:
@@ -35,6 +33,12 @@ def is_non_empty_file(path: Path) -> bool:
         return False
 
 
+def find_onnx_files(target: Path) -> list[Path]:
+    if not target.is_dir():
+        return []
+    return [item for item in target.rglob("*.onnx") if is_non_empty_file(item)]
+
+
 def print_required_file_status(target: Path) -> list[str]:
     missing: list[str] = []
     for relative_path in REQUIRED_FILES:
@@ -44,6 +48,13 @@ def print_required_file_status(target: Path) -> list[str]:
         else:
             print(f"[check] missing: {relative_path}")
             missing.append(relative_path)
+
+    onnx_files = find_onnx_files(target)
+    if onnx_files:
+        print(f"[check] ok: *.onnx ({onnx_files[0].relative_to(target)})")
+    else:
+        print("[check] missing: *.onnx")
+        missing.append("*.onnx")
     return missing
 
 
@@ -87,7 +98,7 @@ def main() -> int:
             print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
             return 1
         if not copy_from_cache(target):
-            print("[error] Paraformer 模型已下载，但未能从缓存复制到项目目录。")
+            print("[error] Paraformer ONNX 模型已下载，但未能从缓存复制到项目目录。")
             print(f"[hint] 可手工下载后放入目录: {target}")
             print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
             return 1
@@ -99,14 +110,14 @@ def main() -> int:
 
     if not target.is_dir():
         if not copy_from_cache(target):
-            print("[error] Paraformer 模型下载完成，但项目目录中未找到结果。")
+            print("[error] Paraformer ONNX 模型下载完成，但项目目录中未找到结果。")
             print(f"[hint] 可手工下载后放入目录: {target}")
             print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
             return 1
 
     missing = print_required_file_status(target)
     if missing:
-        print(f"[error] Paraformer 模型目录仍缺少必需文件: {', '.join(missing)}")
+        print(f"[error] Paraformer ONNX 模型目录仍缺少必需文件: {', '.join(missing)}")
         print(f"[hint] 可手工下载后放入目录: {target}")
         print(f"[hint] 模型页面: {MODEL_PAGE_URL}")
         return 1

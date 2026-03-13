@@ -3,12 +3,14 @@ from __future__ import annotations
 import json
 import logging
 import queue
+import re
 import threading
 import time
 from pathlib import Path
 from typing import Annotated
 
 import uvicorn
+import yaml
 from fastapi import Body, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -34,17 +36,23 @@ MAX_UPLOAD_FILES = 10
 ASR_BACKEND_PRESETS = {
     "whisper": {
         "backend": "whisper",
-        "model_path": "faster-whisper-large-v3-turbo",
+        "model_path": "models/faster-whisper-large-v3-turbo",
     },
     "whisper_small": {
         "backend": "whisper",
-        "model_path": "faster-whisper-small",
+        "model_path": "models/faster-whisper-small",
     },
     "paraformer": {
         "backend": "paraformer",
     },
+    "paraformer_onnx": {
+        "backend": "paraformer_onnx",
+    },
     "funasr_nano": {
         "backend": "funasr_nano",
+    },
+    "sherpa_onnx": {
+        "backend": "sherpa_onnx",
     },
 }
 
@@ -123,10 +131,111 @@ def _current_backend_selection(asr_service: AsrService) -> str:
         return "funasr_nano"
     if asr_service.backend == "paraformer":
         return "paraformer"
+    if asr_service.backend == "paraformer_onnx":
+        return "paraformer_onnx"
+    if asr_service.backend == "sherpa_onnx":
+        return "sherpa_onnx"
     model_name = Path(asr_service.model_path).name.lower()
     if "small" in model_name:
         return "whisper_small"
     return "whisper"
+
+
+def _current_correction_mode_hint(asr_service: AsrService) -> str:
+    try:
+        profile = asr_service.pipeline.config_loader.get_profile(asr_service.default_domain)
+        return asr_service._build_correction_mode_hint(hotwords=profile.prompt_terms)
+    except Exception:
+        return asr_service._build_correction_mode_hint(hotwords=[])
+
+
+def _load_yaml_file(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def _dump_yaml_file(path: Path, data: dict) -> None:
+    path.write_text(
+        yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=1000),
+        encoding="utf-8",
+    )
+
+
+def _phrase_rule_to_line(rule: dict) -> str:
+    patterns = [str(item).strip() for item in rule.get("patterns", []) if str(item).strip()]
+    replacement = str(rule.get("replacement", "") or "").strip()
+    if not patterns or not replacement:
+        return ""
+    return f"{', '.join(patterns)} => {replacement}"
+
+
+def _make_phrase_rule_name(index: int, replacement: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "", replacement.encode("utf-8", "ignore").hex().lower())[:12]
+    if not slug:
+        slug = f"rule{index:03d}"
+    return f"prison_phrase_user_{index:03d}_{slug}"
+
+
+def _read_hotword_editor_config() -> dict:
+    profile_data = _load_yaml_file(resolve_path("domain_profiles.yaml"))
+    security_data = _load_yaml_file(resolve_path("security_terms.yaml"))
+    prison = (((profile_data.get("domains") or {}).get("prison")) or {}) if isinstance(profile_data, dict) else {}
+    return {
+        "base_terms": [str(item).strip() for item in prison.get("prompt_terms", []) if str(item).strip()],
+        "security_terms": [
+            str(item).strip() for item in (security_data.get("prompt_terms", []) if isinstance(security_data, dict) else [])
+            if str(item).strip()
+        ],
+    }
+
+
+def _save_hotword_editor_config(*, base_terms: list[str], security_terms: list[str]) -> None:
+    profile_path = resolve_path("domain_profiles.yaml")
+    security_path = resolve_path("security_terms.yaml")
+    profile_data = _load_yaml_file(profile_path)
+    domains = profile_data.setdefault("domains", {})
+    prison = domains.setdefault("prison", {})
+    prison["prompt_terms"] = base_terms
+    _dump_yaml_file(profile_path, profile_data)
+    _dump_yaml_file(security_path, {"prompt_terms": security_terms})
+
+
+def _read_phrase_editor_config() -> dict:
+    profile_data = _load_yaml_file(resolve_path("domain_profiles.yaml"))
+    prison = (((profile_data.get("domains") or {}).get("prison")) or {}) if isinstance(profile_data, dict) else {}
+    phrase_rules = [rule for rule in prison.get("phrase_rules", []) if isinstance(rule, dict)]
+    return {
+        "lines": [line for line in (_phrase_rule_to_line(rule) for rule in phrase_rules) if line],
+    }
+
+
+def _save_phrase_editor_config(*, lines: list[str]) -> None:
+    profile_path = resolve_path("domain_profiles.yaml")
+    profile_data = _load_yaml_file(profile_path)
+    domains = profile_data.setdefault("domains", {})
+    prison = domains.setdefault("prison", {})
+    new_rules: list[dict] = []
+    for index, raw_line in enumerate(lines, start=1):
+        line = str(raw_line).strip()
+        if not line:
+            continue
+        if "=>" not in line:
+            raise ValueError(f"第 {index} 行格式错误，应为：误词1, 误词2 => 正确词")
+        left, right = line.split("=>", 1)
+        patterns = [item.strip() for item in left.split(",") if item.strip()]
+        replacement = right.strip()
+        if not patterns or not replacement:
+            raise ValueError(f"第 {index} 行格式错误，应为：误词1, 误词2 => 正确词")
+        new_rules.append(
+            {
+                "name": _make_phrase_rule_name(index, replacement),
+                "patterns": patterns,
+                "replacement": replacement,
+            }
+        )
+    prison["phrase_rules"] = new_rules
+    _dump_yaml_file(profile_path, profile_data)
 
 
 def create_app() -> FastAPI:
@@ -144,6 +253,10 @@ def create_app() -> FastAPI:
             model_display = asr_service.funasr_model_path
         elif asr_service.backend == "paraformer":
             model_display = asr_service.paraformer_model_path
+        elif asr_service.backend == "paraformer_onnx":
+            model_display = asr_service.paraformer_onnx_model_path
+        elif asr_service.backend == "sherpa_onnx":
+            model_display = asr_service.sherpa_onnx_model_path
         else:
             model_display = asr_service.model_path
         return {
@@ -163,11 +276,14 @@ def create_app() -> FastAPI:
         return {
             "ok": True,
             "current": _current_backend_selection(asr_service),
+            "correction_mode_hint": _current_correction_mode_hint(asr_service),
             "options": [
-                {"value": "whisper", "label": "whisper"},
-                {"value": "whisper_small", "label": "whisper_small"},
-                {"value": "paraformer", "label": "paraformer"},
-                {"value": "funasr_nano", "label": "funasr_nano"},
+                {"value": "whisper", "label": "whisper（不支持热词）"},
+                {"value": "whisper_small", "label": "whisper_small（不支持热词）"},
+                {"value": "paraformer", "label": "paraformer（支持热词）"},
+                {"value": "paraformer_onnx", "label": "paraformer_onnx（支持热词）"},
+                {"value": "funasr_nano", "label": "funasr_nano（支持热词）"},
+                {"value": "sherpa_onnx", "label": "sherpa_onnx（支持热词，中英双语）"},
             ],
         }
 
@@ -187,6 +303,8 @@ def create_app() -> FastAPI:
             model_display = asr_service.funasr_model_path
         elif asr_service.backend == "paraformer":
             model_display = asr_service.paraformer_model_path
+        elif asr_service.backend == "paraformer_onnx":
+            model_display = asr_service.paraformer_onnx_model_path
         else:
             model_display = asr_service.model_path
         return {
@@ -194,12 +312,57 @@ def create_app() -> FastAPI:
             "backend": _current_backend_selection(asr_service),
             "runtime_backend": asr_service.backend,
             "model_path": model_display,
+            "correction_mode_hint": _current_correction_mode_hint(asr_service),
         }
+
+    @app.get("/api/asr/hotword-config")
+    async def get_hotword_config() -> dict:
+        return {"ok": True, **_read_hotword_editor_config()}
+
+    @app.post("/api/asr/hotword-config")
+    async def save_hotword_config(payload: dict = Body(...)) -> dict:
+        try:
+            base_terms = [str(item).strip() for item in payload.get("base_terms", []) if str(item).strip()]
+            security_terms = [str(item).strip() for item in payload.get("security_terms", []) if str(item).strip()]
+            _save_hotword_editor_config(base_terms=base_terms, security_terms=security_terms)
+            asr_service = _reload_asr_service(CONFIG)
+            return {
+                "ok": True,
+                "base_terms": base_terms,
+                "security_terms": security_terms,
+                "correction_mode_hint": _current_correction_mode_hint(asr_service),
+            }
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Save hotword config failed")
+            raise HTTPException(status_code=500, detail=f"保存热词配置失败：{exc}") from exc
+
+    @app.get("/api/asr/phrase-config")
+    async def get_phrase_config() -> dict:
+        return {"ok": True, **_read_phrase_editor_config()}
+
+    @app.post("/api/asr/phrase-config")
+    async def save_phrase_config(payload: dict = Body(...)) -> dict:
+        try:
+            lines = [str(item) for item in payload.get("lines", [])]
+            _save_phrase_editor_config(lines=lines)
+            asr_service = _reload_asr_service(CONFIG)
+            return {
+                "ok": True,
+                "lines": [str(item).strip() for item in lines if str(item).strip()],
+                "correction_mode_hint": _current_correction_mode_hint(asr_service),
+            }
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("Save phrase config failed")
+            raise HTTPException(status_code=500, detail=f"保存近音词配置失败：{exc}") from exc
 
     @app.post("/api/asr/transcribe")
     async def transcribe(
         file: Annotated[UploadFile, File(...)],
         language: Annotated[str | None, Form()] = None,
+        enable_vad: Annotated[str | None, Form()] = None,
+        enable_split: Annotated[str | None, Form()] = None,
     ) -> dict:
         saved_path = _save_upload(file)
         asr_service = _get_asr_service()
@@ -208,6 +371,8 @@ def create_app() -> FastAPI:
                 saved_path,
                 language=(language or "").strip().lower() or None,
                 domain=asr_service.default_domain,
+                enable_vad=str(enable_vad or "").strip().lower() in {"1", "true", "yes", "on"},
+                enable_split=str(enable_split or "true").strip().lower() not in {"0", "false", "no", "off"},
             )
             return {"ok": True, **result, "file_name": saved_path.name}
         except Exception as exc:  # noqa: BLE001
@@ -218,10 +383,14 @@ def create_app() -> FastAPI:
     async def transcribe_stream(
         file: Annotated[UploadFile, File(...)],
         language: Annotated[str | None, Form()] = None,
+        enable_vad: Annotated[str | None, Form()] = None,
+        enable_split: Annotated[str | None, Form()] = None,
     ) -> StreamingResponse:
         saved_path = _save_upload(file)
         event_queue: queue.Queue[dict] = queue.Queue()
         asr_service = _get_asr_service()
+        parsed_enable_vad = str(enable_vad or "").strip().lower() in {"1", "true", "yes", "on"}
+        parsed_enable_split = str(enable_split or "true").strip().lower() not in {"0", "false", "no", "off"}
 
         def push_event(payload: dict) -> None:
             event_queue.put(payload)
@@ -232,6 +401,8 @@ def create_app() -> FastAPI:
                     saved_path,
                     language=(language or "").strip().lower() or None,
                     domain=asr_service.default_domain,
+                    enable_vad=parsed_enable_vad,
+                    enable_split=parsed_enable_split,
                     progress_callback=push_event,
                 )
                 event_queue.put({"event": "complete", "ok": True, **result, "file_name": saved_path.name})

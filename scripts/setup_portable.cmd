@@ -23,9 +23,9 @@ if errorlevel 1 (
   exit /b 1
 )
 
-".venv\Scripts\pip.exe" install -r requirements.txt
+".venv\Scripts\pip.exe" install -r requirements-cpu.txt
 if errorlevel 1 (
-  echo 安装 requirements.txt 失败。
+  echo 安装 requirements-cpu.txt 失败。
   exit /b 1
 )
 

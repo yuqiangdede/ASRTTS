@@ -148,7 +148,7 @@ def download_vad_model() -> None:
     try:
         from modelscope.hub.snapshot_download import snapshot_download
     except Exception as exc:  # noqa: BLE001
-        raise RuntimeError("未安装 modelscope，请先执行 pip install -r requirements.txt") from exc
+        raise RuntimeError("未安装 modelscope，请先执行 pip install -r requirements-cpu.txt 或 requirements-gpu.txt") from exc
 
     os.environ.setdefault("MODELSCOPE_CACHE", str(project_root() / ".modelscope_cache"))
     try:

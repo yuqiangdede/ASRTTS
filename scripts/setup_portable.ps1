@@ -46,7 +46,7 @@ $py = Join-Path $venv "Scripts\python.exe"
 $pip = Join-Path $venv "Scripts\pip.exe"
 
 & $py -m pip install --upgrade pip setuptools wheel
-& $pip install -r (Join-Path $root "requirements.txt")
+& $pip install -r (Join-Path $root "requirements-cpu.txt")
 
 if (Test-Path (Join-Path $root "vendor\MeloTTS\setup.py")) {
     & $pip install -e (Join-Path $root "vendor\MeloTTS")

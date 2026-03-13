@@ -11,11 +11,12 @@ res/uploads/*
 !res/uploads/.gitkeep
 res/tts_output/*
 !res/tts_output/.gitkeep
-faster-whisper-large-v3-turbo/
-faster-whisper-small/
+models/faster-whisper-large-v3-turbo/
+models/faster-whisper-small/
 models/Fun-ASR-Nano-2512/
 models/speech_fsmn_vad_zh-cn-16k-common-pytorch/
 models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch/
+models/paraformer-seaco-large-zh-timestamp-int8-onnx-offline/
 models/melotts/cache/
 *.normalized.wav
 *.segment.wav

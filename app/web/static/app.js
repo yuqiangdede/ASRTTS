@@ -4,6 +4,8 @@ let mediaRecorder = null;
 let mediaStream = null;
 let recordChunks = [];
 let latestAudioUrl = "";
+let latestCorrectionModeBase = "";
+let currentConfigModal = "";
 const HEALTH_TIMEOUT_MS = 5000;
 const ASR_TIMEOUT_MS = 180000;
 const TTS_TIMEOUT_MS = 180000;
@@ -44,13 +46,16 @@ async function playReadyTone() {
 }
 
 function getRequestedAudioConstraints() {
+  const echoCancellation = $("audio_echo_cancellation")?.checked !== false;
+  const noiseSuppression = $("audio_noise_suppression")?.checked !== false;
+  const autoGainControl = $("audio_auto_gain_control")?.checked !== false;
   return {
     channelCount: { ideal: 1 },
     sampleRate: { ideal: 48000 },
     sampleSize: { ideal: 16 },
-    echoCancellation: true,
-    noiseSuppression: true,
-    autoGainControl: true,
+    echoCancellation,
+    noiseSuppression,
+    autoGainControl,
   };
 }
 
@@ -125,6 +130,11 @@ async function fetchBackendOptions() {
     select.innerHTML = data.options.map((item) => `<option value="${item.value}">${item.label}</option>`).join("");
   }
   select.value = data.current || "whisper";
+  if (data.correction_mode_hint) {
+    applyPhraseModeHint(data.correction_mode_hint);
+  } else {
+    applyPhraseModeHint("");
+  }
 }
 
 async function applyBackendSelection() {
@@ -149,7 +159,8 @@ async function applyBackendSelection() {
   await fetchBackendOptions();
   await fetchHealth();
   setAsrStageLabels({});
-  setAsrResult(`已切换到 ${data.backend}`, "", "", "");
+  setAsrResult("等待识别", "", "", "");
+  applyPhraseModeHint(data.correction_mode_hint || "");
   setRecordStatus(`ASR 后端已切换到 ${data.backend}`);
 }
 
@@ -162,6 +173,19 @@ function setAsrResult(meta, rawText, phraseText, finalText) {
   $("asr_raw_text").value = rawText || "";
   $("asr_phrase_text").value = phraseText || "";
   $("asr_final_text").value = finalText || "";
+}
+
+function setPhraseModeHint(text) {
+  const box = $("asr_phrase_mode_hint");
+  if (!box) {
+    return;
+  }
+  box.textContent = text || "纠错模式说明将显示在这里";
+}
+
+function applyPhraseModeHint(baseText) {
+  latestCorrectionModeBase = baseText || "";
+  setPhraseModeHint(latestCorrectionModeBase || "纠错模式说明将显示在这里");
 }
 
 function formatMs(value) {
@@ -185,11 +209,118 @@ function buildAsrMeta(data) {
   const correctionError = data.correction_error ? ` | 大模型纠错异常: ${data.correction_error}` : "";
   const backendInfo = data.backend ? `后端: ${data.backend} | ` : "";
   const hotwordsInfo = Array.isArray(data.hotwords) && data.hotwords.length ? ` | 热词: ${data.hotwords.length}` : "";
-  return `${backendInfo}业务域: ${data.domain || "unknown"} | 语言: ${data.language || "unknown"} | 置信: ${(Number(data.language_probability || 0) * 100).toFixed(1)}% | 时长: ${Number(data.duration_s || 0).toFixed(2)}s${fallbackInfo}${llmInfo}${correctionError}${hotwordsInfo}${ruleSummary ? ` | 规则: ${ruleSummary}` : ""}`;
+  const vadInfo = ` | VAD: ${data.enable_vad ? "开" : "关"}`;
+  const splitInfo = ` | 切分: ${data.enable_split === false ? "关" : "开"}`;
+  return `${backendInfo}业务域: ${data.domain || "unknown"} | 语言: ${data.language || "unknown"} | 置信: ${(Number(data.language_probability || 0) * 100).toFixed(1)}% | 时长: ${Number(data.duration_s || 0).toFixed(2)}s${vadInfo}${splitInfo}${fallbackInfo}${llmInfo}${correctionError}${hotwordsInfo}${ruleSummary ? ` | 规则: ${ruleSummary}` : ""}`;
 }
 
 function setTtsMeta(text) {
   $("tts_meta").textContent = text;
+}
+
+function setConfigModalStatus(text) {
+  const box = $("config_modal_status");
+  if (box) {
+    box.textContent = text;
+  }
+}
+
+function openConfigModal(mode) {
+  currentConfigModal = mode;
+  const hotwordEditor = $("hotword_editor");
+  const phraseEditor = $("phrase_editor");
+  const showHotwords = mode === "hotwords";
+  const showPhrases = mode === "phrases";
+  $("config_modal").classList.remove("hidden");
+  $("config_modal").setAttribute("aria-hidden", "false");
+  hotwordEditor.classList.toggle("hidden", !showHotwords);
+  hotwordEditor.hidden = !showHotwords;
+  phraseEditor.classList.toggle("hidden", !showPhrases);
+  phraseEditor.hidden = !showPhrases;
+  $("config_modal_tag").textContent = mode === "hotwords" ? "热词" : "近音词";
+  $("config_modal_title").textContent = mode === "hotwords" ? "编辑热词配置" : "编辑近音词配置";
+  setConfigModalStatus("正在加载配置...");
+}
+
+function closeConfigModal() {
+  currentConfigModal = "";
+  $("config_modal").classList.add("hidden");
+  $("config_modal").setAttribute("aria-hidden", "true");
+  setConfigModalStatus("等待操作");
+}
+
+async function loadHotwordConfig() {
+  openConfigModal("hotwords");
+  const res = await fetchWithTimeout("/api/asr/hotword-config", {}, HEALTH_TIMEOUT_MS);
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.detail || data.error || "加载热词配置失败");
+  }
+  $("hotword_base_text").value = (data.base_terms || []).join("\n");
+  $("hotword_security_text").value = (data.security_terms || []).join("\n");
+  setConfigModalStatus("已加载当前热词配置");
+}
+
+async function loadPhraseConfig() {
+  openConfigModal("phrases");
+  const res = await fetchWithTimeout("/api/asr/phrase-config", {}, HEALTH_TIMEOUT_MS);
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.detail || data.error || "加载近音词配置失败");
+  }
+  $("phrase_rule_text").value = (data.lines || []).join("\n");
+  setConfigModalStatus("已加载当前近音词配置");
+}
+
+function parseLineTextarea(value) {
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+async function saveConfigModal() {
+  if (currentConfigModal === "hotwords") {
+    const payload = {
+      base_terms: parseLineTextarea($("hotword_base_text").value),
+      security_terms: parseLineTextarea($("hotword_security_text").value),
+    };
+    setConfigModalStatus("正在保存热词配置...");
+    const res = await fetchWithTimeout("/api/asr/hotword-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }, 30000);
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.detail || data.error || "保存热词配置失败");
+    }
+    await fetchBackendOptions();
+    await fetchHealth();
+    applyPhraseModeHint(data.correction_mode_hint || latestCorrectionModeBase);
+    setConfigModalStatus("热词配置已保存，并已自动生效");
+    return;
+  }
+
+  if (currentConfigModal === "phrases") {
+    const payload = {
+      lines: parseLineTextarea($("phrase_rule_text").value),
+    };
+    setConfigModalStatus("正在保存近音词配置...");
+    const res = await fetchWithTimeout("/api/asr/phrase-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }, 30000);
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.detail || data.error || "保存近音词配置失败");
+    }
+    await fetchBackendOptions();
+    await fetchHealth();
+    applyPhraseModeHint(data.correction_mode_hint || latestCorrectionModeBase);
+    setConfigModalStatus("近音词配置已保存，并已自动生效");
+  }
 }
 
 function toggleRecording(active) {
@@ -200,7 +331,9 @@ function toggleRecording(active) {
 async function transcribeBlob(blob, filename) {
   const fd = new FormData();
   fd.append("file", blob, filename);
-  fd.append("language", $("asr_language").value);
+  fd.append("language", "zh");
+  fd.append("enable_vad", $("asr_enable_vad").checked ? "true" : "false");
+  fd.append("enable_split", $("asr_enable_split").checked ? "true" : "false");
 
   setRecordStatus("识别中...");
   setAsrResult("正在调用 ASR", "", "", "");
@@ -238,6 +371,9 @@ async function consumeAsrStream(response) {
     correction_error: "",
     backend: "",
     hotwords: [],
+    correction_mode_hint: "",
+    enable_vad: false,
+    enable_split: true,
     asr_elapsed_ms: 0,
     phrase_elapsed_ms: 0,
     confusion_elapsed_ms: 0,
@@ -282,6 +418,9 @@ function handleAsrStreamEvent(currentState, event) {
     llm_correction_applied: event.llm_correction_applied ?? currentState.llm_correction_applied,
     backend: event.backend ?? currentState.backend,
     hotwords: event.hotwords ?? currentState.hotwords,
+    correction_mode_hint: event.correction_mode_hint ?? currentState.correction_mode_hint,
+    enable_vad: event.enable_vad ?? currentState.enable_vad,
+    enable_split: event.enable_split ?? currentState.enable_split,
     asr_elapsed_ms: event.asr_elapsed_ms ?? currentState.asr_elapsed_ms,
     phrase_elapsed_ms: event.phrase_elapsed_ms ?? currentState.phrase_elapsed_ms,
     confusion_elapsed_ms: event.confusion_elapsed_ms ?? currentState.confusion_elapsed_ms,
@@ -290,18 +429,22 @@ function handleAsrStreamEvent(currentState, event) {
   };
 
   if (event.event === "raw_text") {
+    applyPhraseModeHint(nextState.correction_mode_hint);
     setAsrStageLabels(nextState);
     setAsrResult(buildAsrMeta(nextState), nextState.raw_text, nextState.text_after_phrase, nextState.final_text);
     setRecordStatus("已收到原始文本，正在执行短语纠错...");
   } else if (event.event === "phrase_text") {
+    applyPhraseModeHint(nextState.correction_mode_hint);
     setAsrStageLabels(nextState);
     setAsrResult(buildAsrMeta(nextState), nextState.raw_text, nextState.text_after_phrase, nextState.final_text);
     setRecordStatus("已完成短语纠错，正在执行混淆词和大模型纠错...");
   } else if (event.event === "final_text") {
+    applyPhraseModeHint(nextState.correction_mode_hint);
     setAsrStageLabels(nextState);
     setAsrResult(buildAsrMeta(nextState), nextState.raw_text, nextState.text_after_phrase, nextState.final_text);
     setRecordStatus(nextState.correction_error ? "识别完成，已回退到规则纠错结果。" : "识别完成");
   } else if (event.event === "complete") {
+    applyPhraseModeHint(nextState.correction_mode_hint);
     setAsrStageLabels(nextState);
     setAsrResult(buildAsrMeta(nextState), nextState.raw_text, nextState.text_after_phrase, nextState.final_text || nextState.text);
     setRecordStatus(nextState.correction_error ? "识别完成，已回退到规则纠错结果。" : "识别完成");
@@ -434,6 +577,7 @@ window.addEventListener("load", () => {
   $("clear_asr").addEventListener("click", () => {
     setAsrStageLabels({});
     setAsrResult("等待识别", "", "", "");
+    applyPhraseModeHint("");
     setRecordStatus("可直接录音，或上传本地音频文件后识别。");
   });
 
@@ -442,6 +586,43 @@ window.addEventListener("load", () => {
       await applyBackendSelection();
     } catch (err) {
       setRecordStatus(`切换后端失败: ${err.message}`);
+    }
+  });
+  $("asr_enable_vad").addEventListener("change", () => {
+    applyPhraseModeHint(latestCorrectionModeBase);
+  });
+  $("asr_enable_split").addEventListener("change", () => {
+    applyPhraseModeHint(latestCorrectionModeBase);
+  });
+  $("open_hotword_config").addEventListener("click", async () => {
+    try {
+      await loadHotwordConfig();
+    } catch (err) {
+      setRecordStatus(`加载热词配置失败: ${err.message}`);
+      closeConfigModal();
+    }
+  });
+  $("open_phrase_config").addEventListener("click", async () => {
+    try {
+      await loadPhraseConfig();
+    } catch (err) {
+      setRecordStatus(`加载近音词配置失败: ${err.message}`);
+      closeConfigModal();
+    }
+  });
+  $("close_config_modal").addEventListener("click", () => {
+    closeConfigModal();
+  });
+  $("config_modal").addEventListener("click", (event) => {
+    if (event.target instanceof HTMLElement && event.target.dataset.closeModal === "true") {
+      closeConfigModal();
+    }
+  });
+  $("save_config_modal").addEventListener("click", async () => {
+    try {
+      await saveConfigModal();
+    } catch (err) {
+      setConfigModalStatus(`保存失败: ${err.message}`);
     }
   });
 
@@ -459,4 +640,5 @@ window.addEventListener("load", () => {
   });
 
   setAsrStageLabels({});
+  applyPhraseModeHint("");
 });

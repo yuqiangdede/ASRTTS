@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ASR + MeloTTS</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/style.css?v=20260313e" />
   </head>
   <body>
     <div class="page-shell">
@@ -15,46 +15,76 @@
               <p class="section-tag">ASR</p>
               <h2>语音转文本</h2>
             </div>
-            <button id="clear_asr" class="ghost">清空</button>
+            <div class="inline-actions">
+              <span class="action-with-help">
+                <button id="open_hotword_config" class="ghost">配置热词</button>
+                <span
+                  class="help-tip"
+                  tabindex="0"
+                  aria-label="说明：支持热词的模型，会在识别时重点照顾你配置的词，更容易直接识别出来。不支持热词的模型，不会把这些词当成真正的热词加权，但还是会把它们当成提示词，提前告诉模型这段话大概会提到哪些词，并在后面的大模型纠错时继续参考。"
+                  data-tip="支持热词的模型：识别时会重点照顾你配置的词，更容易直接识别出来。&#10;&#10;不支持热词的模型：不会把这些词当成真正的热词加权，但还是会把它们当成提示词，先告诉模型这段话大概会聊哪些词，后面的大模型纠错也会继续参考。"
+                >?</span>
+              </span>
+              <span class="action-with-help">
+                <button id="open_phrase_config" class="ghost">配置近音词</button>
+                <span
+                  class="help-tip"
+                  tabindex="0"
+                  aria-label="说明：近音词是识别后的纠错规则，主要用于把常见误识别直接替换成正确词，也会给大模型纠错做参考。它不依赖底层 ASR 是否支持热词，所以对所有模型都生效。"
+                  data-tip="近音词主要是识别后的纠错规则，用来把常见误识别改成正确词。&#10;&#10;它不依赖模型是否支持热词，所以对所有 ASR 后端都生效。&#10;&#10;当前这部分以直接替换为主，后面的大模型纠错也会参考。"
+                >?</span>
+              </span>
+              <button id="clear_asr" class="ghost">清空</button>
+            </div>
           </div>
 
-          <div class="stack">
+          <div class="stack asr-stack">
             <div class="inline-fields">
               <label class="field">
                 <span>ASR 后端</span>
                 <select id="asr_backend">
-                  <option value="whisper">whisper</option>
-                  <option value="whisper_small">whisper_small</option>
-                  <option value="paraformer">paraformer</option>
-                  <option value="funasr_nano">funasr_nano</option>
+                  <option value="whisper">whisper（不支持热词）</option>
+                  <option value="whisper_small">whisper_small（不支持热词）</option>
+                  <option value="paraformer">paraformer（支持热词）</option>
+                  <option value="paraformer_onnx">paraformer_onnx（支持热词）</option>
+                  <option value="funasr_nano">funasr_nano（支持热词）</option>
+                  <option value="sherpa_onnx">sherpa_onnx（支持热词，中英双语）</option>
                 </select>
               </label>
 
-              <label class="field">
-                <span>识别语言</span>
-                <select id="asr_language">
-                  <option value="zh">中文</option>
-                  <option value="en">英文</option>
-                  <option value="">自动检测</option>
-                </select>
+              <label class="upload-zone upload-zone-inline">
+                <input id="audio_file" type="file" accept=".wav,.mp3,.m4a,.webm,.ogg,.aac,.mp4" hidden />
+                <span>选择音频文件识别</span>
               </label>
             </div>
 
-            <div class="record-box">
-              <div class="record-actions">
-                <button id="start_record" class="primary">开始录音</button>
-                <button id="stop_record" class="ghost" disabled>停止并识别</button>
-              </div>
-              <p id="record_status" class="hint">可直接录音，或上传本地音频文件后识别。</p>
+            <div class="toggle-row">
+              <label class="toggle-chip">
+                <input id="asr_enable_vad" type="checkbox" />
+                <span>开启 VAD</span>
+              </label>
+              <label class="toggle-chip">
+                <input id="asr_enable_split" type="checkbox" checked />
+                <span>开启语音切分</span>
+              </label>
             </div>
 
-            <label class="upload-zone">
-              <input id="audio_file" type="file" accept=".wav,.mp3,.m4a,.webm,.ogg,.aac,.mp4" hidden />
-              <span>选择音频文件识别</span>
-            </label>
+            <div class="toggle-row">
+              <label class="toggle-chip">
+                <input id="audio_echo_cancellation" type="checkbox" checked />
+                <span>回声消除</span>
+              </label>
+              <label class="toggle-chip">
+                <input id="audio_noise_suppression" type="checkbox" checked />
+                <span>降噪</span>
+              </label>
+              <label class="toggle-chip">
+                <input id="audio_auto_gain_control" type="checkbox" checked />
+                <span>自动增益</span>
+              </label>
+            </div>
 
             <div class="result-box">
-              <div class="result-meta" id="asr_meta">等待识别</div>
               <label class="field">
                 <span id="asr_raw_label">原始文本</span>
                 <textarea id="asr_raw_text" readonly placeholder="ASR 原始识别结果"></textarea>
@@ -67,6 +97,16 @@
                 <span id="asr_final_label">大模型纠正后</span>
                 <textarea id="asr_final_text" readonly placeholder="规则和大模型处理后的最终结果"></textarea>
               </label>
+            </div>
+
+            <div class="record-box">
+              <div class="record-actions">
+                <button id="start_record" class="primary">开始录音</button>
+                <button id="stop_record" class="ghost" disabled>停止并识别</button>
+              </div>
+              <p id="record_status" class="hint">可直接录音，或上传本地音频文件后识别。</p>
+              <div id="asr_phrase_mode_hint" class="hint compact-hint bottom-hint">纠错模式说明将显示在这里</div>
+              <div class="result-meta bottom-meta" id="asr_meta">等待识别</div>
             </div>
           </div>
         </section>
@@ -114,6 +154,47 @@
       </main>
     </div>
 
-    <script src="/static/app.js"></script>
+    <div id="config_modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-panel">
+        <div class="modal-head">
+          <div>
+            <p id="config_modal_tag" class="section-tag">配置</p>
+            <h3 id="config_modal_title">编辑配置</h3>
+          </div>
+          <button id="close_config_modal" class="ghost">关闭</button>
+        </div>
+
+        <div id="hotword_editor" class="modal-body hidden" hidden>
+          <label class="field">
+            <span>基础热词</span>
+            <textarea id="hotword_base_text" class="config-textarea" placeholder="一行一个词"></textarea>
+          </label>
+          <label class="field">
+            <span>常用安防词汇</span>
+            <textarea id="hotword_security_text" class="config-textarea" placeholder="一行一个词"></textarea>
+          </label>
+        </div>
+
+        <div id="phrase_editor" class="modal-body hidden" hidden>
+          <label class="field">
+            <span>近音词规则</span>
+            <textarea
+              id="phrase_rule_text"
+              class="config-textarea"
+              placeholder="每行一个规则，例如：坚强, 肩强 => 监墙"
+            ></textarea>
+          </label>
+          <p class="hint">格式：误词1, 误词2 => 正确词</p>
+        </div>
+
+        <div class="inline-actions modal-actions">
+          <button id="save_config_modal" class="primary">保存配置</button>
+        </div>
+        <div id="config_modal_status" class="result-meta">等待操作</div>
+      </div>
+    </div>
+
+    <script src="/static/app.js?v=20260313b"></script>
   </body>
 </html>

@@ -1,0 +1,4 @@
+-r requirements-common.txt
+
+torch>=2.2.0
+torchaudio>=2.2.0

@@ -1,802 +1,800 @@
 domains:
   prison:
     prompt_terms:
-      - 监门
-      - 干警通道
-      - 车行通道
-      - 周界
-      - 监墙
-      - 伙房
-      - 会见楼
-      - 监区
-      - 严管监区
-      - 监区车间
-      - 狱内管控中心
-      - 监舍
-      - 固定包房
-      - 宣传室
-      - 后整理车间
-      - 总装车间
-      - 下料车间
-      - 管件车间
-      - 缝纫车间
-      - 机加工车间
-      - 机加工北车间
-      - 筒壳南车间
-      - 筒壳北车间
-      - 筒壳车间
-      - 筒壳北外协办材料库
-      - 冲压车间
-      - 冲压外协办缝纫机库
-      - 外协办成品库
-      - 西监区域
-      - 生产区域
-      - 脱逃
-      - 袭警
-      - 暴狱
-      - 哄监闹事
-      - 哄监闹狱
-      - 行凶
-      - 群殴
-      - 持械
-      - 狱外人员
-      - 冲击监狱
-      - 离监就医
-      - 震灾
-      - 值班主任
-      - 总值班长
-      - 驻监武警部队
-      - 各押犯单位
-      - 押犯单位
-      - 改造副监狱长
-      - 科长
-      - 狱政科
-      - 狱政科长
-      - 狱政管理科
-      - 狱侦科长
-      - 狱侦科
-      - 狱内侦察科
-      - 教育科长
-      - 教育科
-      - 教育改造科
-      - 刑罚科科长
-      - 刑罚科长
-      - 刑罚科
-      - 刑罚执行科
-      - 各监区监区长
-      - 追逃
-      - 联勤联值单元
-      - 和衣班警察
-      - 备勤警察
-      - 管控中心
-      - 整理车间
-      - 加工车间
-      - 南车间
-      - 北车间
-      - 外协办
-      - 材料库
-      - 缝纫机库
-      - 成品库
-      - 闹事
-      - 闹狱
-      - 离监
-      - 武警部队
-      - 副监狱长
-      - 监狱长
-      - 管理科
-      - 侦察科
-      - 改造科
-      - 执行科
-      - 监区长
-      - 联勤联值
-      - 联值单元
-      - 警察
-      - 和衣班
-      - 备勤
-      - 监所内
-      - 一监区
-      - 二监区
-      - 三监区
-      - 四监区
-      - 五监区
-      - 六监区
-      - 七监区
-      - 八监区
-      - 九监区
-      - 十监区
-      - 第一监区
-      - 第二监区
-      - 第三监区
-      - 第四监区
-      - 第五监区
-      - 第六监区
-      - 第七监区
-      - 第八监区
-      - 第九监区
-      - 第十监区
+    - 监门
+    - 干警通道
+    - 车行通道
+    - 周界
+    - 监墙
+    - 伙房
+    - 会见楼
+    - 监区
+    - 严管监区
+    - 监区车间
+    - 狱内管控中心
+    - 监舍
+    - 固定包房
+    - 宣传室
+    - 后整理车间
+    - 总装车间
+    - 下料车间
+    - 管件车间
+    - 缝纫车间
+    - 机加工车间
+    - 机加工北车间
+    - 筒壳南车间
+    - 筒壳北车间
+    - 筒壳车间
+    - 筒壳北外协办材料库
+    - 冲压车间
+    - 冲压外协办缝纫机库
+    - 外协办成品库
+    - 西监区域
+    - 生产区域
+    - 脱逃
+    - 袭警
+    - 暴狱
+    - 哄监闹事
+    - 哄监闹狱
+    - 行凶
+    - 群殴
+    - 持械
+    - 狱外人员
+    - 冲击监狱
+    - 离监就医
+    - 震灾
+    - 值班主任
+    - 总值班长
+    - 驻监武警部队
+    - 各押犯单位
+    - 押犯单位
+    - 改造副监狱长
+    - 科长
+    - 狱政科
+    - 狱政科长
+    - 狱政管理科
+    - 狱侦科长
+    - 狱侦科
+    - 狱内侦察科
+    - 教育科长
+    - 教育科
+    - 教育改造科
+    - 刑罚科科长
+    - 刑罚科长
+    - 刑罚科
+    - 刑罚执行科
+    - 各监区监区长
+    - 追逃
+    - 联勤联值单元
+    - 和衣班警察
+    - 备勤警察
+    - 管控中心
+    - 整理车间
+    - 加工车间
+    - 南车间
+    - 北车间
+    - 外协办
+    - 材料库
+    - 缝纫机库
+    - 成品库
+    - 闹事
+    - 闹狱
+    - 离监
+    - 武警部队
+    - 副监狱长
+    - 监狱长
+    - 管理科
+    - 侦察科
+    - 改造科
+    - 执行科
+    - 监区长
+    - 联勤联值
+    - 联值单元
+    - 警察
+    - 和衣班
+    - 备勤
+    - 监所内
+    - 一监区
+    - 二监区
+    - 三监区
+    - 四监区
+    - 五监区
+    - 六监区
+    - 七监区
+    - 八监区
+    - 九监区
+    - 十监区
+    - 第一监区
+    - 第二监区
+    - 第三监区
+    - 第四监区
+    - 第五监区
+    - 第六监区
+    - 第七监区
+    - 第八监区
+    - 第九监区
+    - 第十监区
     phrase_rules:
-      - name: prison_phrase_jiansuonei
-        patterns:
-          - 检索内
-        replacement: 监所内
-      - name: prison_phrase_yijianqu
-        patterns:
-          - 一键锁
-          - 衣键锁
-          - 一间锁
-          - 衣间区
-          - 一间区
-          - 一键区
-          - 衣监区
-          - 衣监所
-          - 一监所
-          - 一监守
-        replacement: 一监区
-      - name: prison_phrase_erjianqu
-        patterns:
-          - 二间区
-          - 二键区
-          - 二监去
-          - 二监所
-          - 二监守
-        replacement: 二监区
-      - name: prison_phrase_sanjianqu
-        patterns:
-          - 三间区
-          - 三键区
-          - 三监去
-          - 三监所
-          - 三监守
-        replacement: 三监区
-      - name: prison_phrase_sijianqu
-        patterns:
-          - 四间区
-          - 四键区
-          - 四监去
-          - 四监所
-          - 四监守
-        replacement: 四监区
-      - name: prison_phrase_wujianqu
-        patterns:
-          - 五间区
-          - 五键区
-          - 五监去
-          - 五监所
-          - 五监守
-        replacement: 五监区
-      - name: prison_phrase_liujianqu
-        patterns:
-          - 六间区
-          - 六键区
-          - 六监去
-          - 六监所
-          - 六监守
-        replacement: 六监区
-      - name: prison_phrase_qijianqu
-        patterns:
-          - 七间区
-          - 七键区
-          - 七监去
-          - 七监所
-          - 七监守
-        replacement: 七监区
-      - name: prison_phrase_bajianqu
-        patterns:
-          - 八间区
-          - 八键区
-          - 八监去
-          - 八监所
-          - 八监守
-        replacement: 八监区
-      - name: prison_phrase_jiujianqu
-        patterns:
-          - 九间区
-          - 九键区
-          - 九监去
-          - 九监所
-          - 九监守
-        replacement: 九监区
-      - name: prison_phrase_shijianqu
-        patterns:
-          - 十间区
-          - 十键区
-          - 十监去
-          - 十监所
-          - 十监守
-        replacement: 十监区
-      - name: prison_phrase_jianmen
-        patterns:
-          - 尖门
-          - 间门
-          - 建门
-        replacement: 监门
-      - name: prison_phrase_ganjingtongdao
-        patterns:
-          - 赶紧通道
-          - 干净通道
-        replacement: 干警通道
-      - name: prison_phrase_chexingtongdao
-        patterns:
-          - 车型通道
-          - 车形通道
-          - 车行通到
-        replacement: 车行通道
-      - name: prison_phrase_zhoujie
-        patterns:
-          - 州界
-          - 周届
-        replacement: 周界
-      - name: prison_phrase_jianqiang
-        patterns:
-          - 间墙
-          - 建墙
-          - 肩强
-        replacement: 监墙
-      - name: prison_phrase_jianqiangfujin
-        patterns:
-          - 坚强附近
-          - 肩强附近
-        replacement: 监墙附近
-      - name: prison_phrase_jianqiangfujin_alt
-        patterns:
-          - 坚强附件
-          - 肩强附件
-        replacement: 监墙附近
-      - name: prison_phrase_jianqiangdianwei
-        patterns:
-          - 坚强点位
-          - 肩强点位
-        replacement: 监墙点位
-      - name: prison_phrase_dianwei
-        patterns:
-          - 电位
-          - 点为
-          - 店位
-        replacement: 点位
-      - name: prison_phrase_fujin
-        patterns:
-          - 附件
-        replacement: 附近
-      - name: prison_phrase_jiankong
-        patterns:
-          - 监空
-          - 监孔
-          - 建控
-        replacement: 监控
-      - name: prison_phrase_jiankongdian
-        patterns:
-          - 监空点
-          - 建控点
-          - 监控店
-        replacement: 监控点
-      - name: prison_phrase_huifang
-        patterns:
-          - 回访
-          - 会放
-          - 回防
-        replacement: 回放
-      - name: prison_phrase_shexiangtou
-        patterns:
-          - 摄像头
-          - 设像头
-          - 摄象头
-        replacement: 摄像头
-      - name: prison_phrase_dianshiqiang
-        patterns:
-          - 电视强
-          - 电视墙面
-        replacement: 电视墙
-      - name: prison_phrase_shangqiang
-        patterns:
-          - 上强
-          - 上墙面
-        replacement: 上墙
-      - name: prison_phrase_fenping
-        patterns:
-          - 分屏
-          - 分频
-          - 分平
-        replacement: 分屏
-      - name: prison_phrase_yuntai
-        patterns:
-          - 云台
-          - 云抬
-          - 云太
-        replacement: 云台
-      - name: prison_phrase_yuzhiwei
-        patterns:
-          - 预制位
-          - 预致位
-          - 预制为
-        replacement: 预置位
-      - name: prison_phrase_xunhang
-        patterns:
-          - 巡航
-          - 巡行
-          - 循航
-        replacement: 巡航
-      - name: prison_phrase_baojing
-        patterns:
-          - 报警
-          - 保警
-          - 抱警
-        replacement: 报警
-      - name: prison_phrase_menjin
-        patterns:
-          - 门禁
-          - 门进
-          - 门径
-        replacement: 门禁
-      - name: prison_phrase_huofang
-        patterns:
-          - 火房
-        replacement: 伙房
-      - name: prison_phrase_huijianlou
-        patterns:
-          - 会建楼
-          - 汇见楼
-          - 会见喽
-        replacement: 会见楼
-      - name: prison_phrase_jianqu
-        patterns:
-          - 间区
-          - 监去
-          - 见区
-        replacement: 监区
-      - name: prison_phrase_yanguanjianqu
-        patterns:
-          - 严管间区
-          - 严管监去
-        replacement: 严管监区
-      - name: prison_phrase_jianquchejian
-        patterns:
-          - 间区车间
-          - 监区车件
-        replacement: 监区车间
-      - name: prison_phrase_yuneiguankongzhongxin
-        patterns:
-          - 域内管控中心
-          - 玉内管控中心
-          - 狱内管控中兴
-        replacement: 狱内管控中心
-      - name: prison_phrase_guankongzhongxin
-        patterns:
-          - 管控中兴
-          - 管空中心
-          - 管控中信
-        replacement: 管控中心
-      - name: prison_phrase_jianshe
-        patterns:
-          - 监摄
-          - 间舍
-          - 建舍
-        replacement: 监舍
-      - name: prison_phrase_gudingbaofang
-        patterns:
-          - 固定包坊
-          - 固定包防
-        replacement: 固定包房
-      - name: prison_phrase_xuanchuanshi
-        patterns:
-          - 宣传市
-          - 宣传是
-        replacement: 宣传室
-      - name: prison_phrase_houzhenglichejian
-        patterns:
-          - 后整理车件
-        replacement: 后整理车间
-      - name: prison_phrase_zhenglichejian
-        patterns:
-          - 整理车件
-          - 整理车建
-        replacement: 整理车间
-      - name: prison_phrase_zongzhuangchejian
-        patterns:
-          - 总装车件
-        replacement: 总装车间
-      - name: prison_phrase_xialiaochejian
-        patterns:
-          - 下料车件
-        replacement: 下料车间
-      - name: prison_phrase_guanjianchejian
-        patterns:
-          - 管舰车间
-          - 管建车间
-          - 管健车间
-          - 管件车件
-        replacement: 管件车间
-      - name: prison_phrase_fengrenchejian
-        patterns:
-          - 逢纫车间
-          - 逢任车间
-          - 缝纫车件
-        replacement: 缝纫车间
-      - name: prison_phrase_jijiagongchejian
-        patterns:
-          - 机加公车间
-          - 机加工车件
-        replacement: 机加工车间
-      - name: prison_phrase_jiagongchejian
-        patterns:
-          - 加工车件
-          - 加工车建
-        replacement: 加工车间
-      - name: prison_phrase_jijiagongbeichejian
-        patterns:
-          - 机加工被车间
-          - 机加工北车件
-        replacement: 机加工北车间
-      - name: prison_phrase_tongkenanchejian
-        patterns:
-          - 铜壳南车间
-          - 桶壳南车间
-          - 筒壳南车件
-        replacement: 筒壳南车间
-      - name: prison_phrase_nanchejian
-        patterns:
-          - 南车件
-          - 南车建
-        replacement: 南车间
-      - name: prison_phrase_tongkebeichejian
-        patterns:
-          - 铜壳北车间
-          - 桶壳北车间
-          - 筒壳北车件
-        replacement: 筒壳北车间
-      - name: prison_phrase_beichejian
-        patterns:
-          - 北车件
-          - 北车建
-        replacement: 北车间
-      - name: prison_phrase_tongkechejian
-        patterns:
-          - 铜壳车间
-          - 桶壳车间
-          - 筒壳车件
-        replacement: 筒壳车间
-      - name: prison_phrase_tongkecailiaoku
-        patterns:
-          - 铜壳北外协办材料库
-          - 筒壳北外协办材料裤
-        replacement: 筒壳北外协办材料库
-      - name: prison_phrase_waixieban
-        patterns:
-          - 外斜办
-          - 歪协办
-          - 外协伴
-        replacement: 外协办
-      - name: prison_phrase_cailiaoku
-        patterns:
-          - 材料裤
-          - 材料苦
-        replacement: 材料库
-      - name: prison_phrase_chongyachejian
-        patterns:
-          - 冲压车件
-        replacement: 冲压车间
-      - name: prison_phrase_chongyafengrenjiku
-        patterns:
-          - 冲压外协办缝纫机裤
-          - 冲压外协办缝纫机苦
-        replacement: 冲压外协办缝纫机库
-      - name: prison_phrase_fengrenjiku
-        patterns:
-          - 缝纫机裤
-          - 缝纫机苦
-        replacement: 缝纫机库
-      - name: prison_phrase_waixiechengpinku
-        patterns:
-          - 外协办陈品库
-          - 外协办成品裤
-        replacement: 外协办成品库
-      - name: prison_phrase_chengpinku
-        patterns:
-          - 成品裤
-          - 陈品库
-        replacement: 成品库
-      - name: prison_phrase_xijianquyu
-        patterns:
-          - 西间区域
-          - 西监去域
-        replacement: 西监区域
-      - name: prison_phrase_shengchanquyu
-        patterns:
-          - 生产去域
-        replacement: 生产区域
-      - name: prison_phrase_tuotao
-        patterns:
-          - 拖逃
-        replacement: 脱逃
-      - name: prison_phrase_xijing
-        patterns:
-          - 习警
-          - 洗警
-        replacement: 袭警
-      - name: prison_phrase_hongjiannaoshi
-        patterns:
-          - 哄见闹事
-          - 轰监闹事
-          - 轰间闹事
-          - 哄间闹事
-        replacement: 哄监闹事
-      - name: prison_phrase_naoshi
-        patterns:
-          - 闹是
-          - 闹市
-        replacement: 闹事
-      - name: prison_phrase_hongjiannaoyu
-        patterns:
-          - 空间脑域
-          - 空间，脑域
-          - 空间,脑域
-          - 空间、脑域
-          - 哄见闹狱
-          - 轰监闹狱
-        replacement: 哄监闹狱
-      - name: prison_phrase_naoyu
-        patterns:
-          - 闹欲
-          - 闹遇
-        replacement: 闹狱
-      - name: prison_phrase_xingxiong
-        patterns:
-          - 行胸
-        replacement: 行凶
-      - name: prison_phrase_qunou
-        patterns:
-          - 群欧
-        replacement: 群殴
-      - name: prison_phrase_chixie
-        patterns:
-          - 持戒
-          - 持卸
-        replacement: 持械
-      - name: prison_phrase_yuwairenyuan
-        patterns:
-          - 域外人员
-          - 欲外人员
-        replacement: 狱外人员
-      - name: prison_phrase_chongjijianyu
-        patterns:
-          - 冲击尖狱
-          - 冲击监御
-        replacement: 冲击监狱
-      - name: prison_phrase_lijianjiuyi
-        patterns:
-          - 离间就医
-          - 离监救医
-        replacement: 离监就医
-      - name: prison_phrase_lijian
-        patterns:
-          - 离间
-        replacement: 离监
-      - name: prison_phrase_zhenzai
-        patterns:
-          - 赈灾
-        replacement: 震灾
-      - name: prison_phrase_zhibanzhuren
-        patterns:
-          - 值班主认
-        replacement: 值班主任
-      - name: prison_phrase_zongzhibanzhang
-        patterns:
-          - 总值班帐
-          - 总值班章
-        replacement: 总值班长
-      - name: prison_phrase_zhujianwujingbudui
-        patterns:
-          - 助监武警部队
-          - 驻检武警部队
-          - 驻监武警部对
-        replacement: 驻监武警部队
-      - name: prison_phrase_wujingbudui
-        patterns:
-          - 武警部对
-          - 五警部队
-        replacement: 武警部队
-      - name: prison_phrase_geyafandanwei
-        patterns:
-          - 各押范单位
-          - 各压犯单位
-        replacement: 各押犯单位
-      - name: prison_phrase_yafandanwei
-        patterns:
-          - 压犯单位
-        replacement: 押犯单位
-      - name: prison_phrase_gaizaofujianyuzhang
-        patterns:
-          - 改造副尖狱长
-          - 改造副监御长
-        replacement: 改造副监狱长
-      - name: prison_phrase_fujianyuzhang
-        patterns:
-          - 副尖狱长
-          - 副监御长
-        replacement: 副监狱长
-      - name: prison_phrase_jianyuzhang
-        patterns:
-          - 尖狱长
-          - 监御长
-        replacement: 监狱长
-      - name: prison_phrase_yuzhengke
-        patterns:
-          - 预政科
-          - 狱政课
-        replacement: 狱政科
-      - name: prison_phrase_yuzhengkezhang
-        patterns:
-          - 预政科长
-          - 狱政课长
-        replacement: 狱政科长
-      - name: prison_phrase_yuzhengguanlike
-        patterns:
-          - 预政管理科
-          - 狱政管理课
-        replacement: 狱政管理科
-      - name: prison_phrase_guanlike
-        patterns:
-          - 管理课
-        replacement: 管理科
-      - name: prison_phrase_yuzhenkezhang
-        patterns:
-          - 预侦科长
-          - 狱侦课长
-        replacement: 狱侦科长
-      - name: prison_phrase_yuzhenke
-        patterns:
-          - 预侦科
-          - 狱侦课
-        replacement: 狱侦科
-      - name: prison_phrase_yuneizhenchake
-        patterns:
-          - 狱内侦查科
-          - 域内侦察科
-        replacement: 狱内侦察科
-      - name: prison_phrase_zhenchake
-        patterns:
-          - 侦查科
-          - 侦察课
-        replacement: 侦察科
-      - name: prison_phrase_jiaoyukezhang
-        patterns:
-          - 教育课长
-        replacement: 教育科长
-      - name: prison_phrase_jiaoyugaizaoke
-        patterns:
-          - 教育改造课
-        replacement: 教育改造科
-      - name: prison_phrase_gaizaoke
-        patterns:
-          - 改造课
-        replacement: 改造科
-      - name: prison_phrase_xingfakekezhang
-        patterns:
-          - 刑罚课科长
-          - 刑法科科长
-        replacement: 刑罚科科长
-      - name: prison_phrase_xingfakezhang
-        patterns:
-          - 刑罚课长
-          - 刑法科长
-        replacement: 刑罚科长
-      - name: prison_phrase_xingfazhixingke
-        patterns:
-          - 刑罚执行课
-        replacement: 刑罚执行科
-      - name: prison_phrase_zhixingke
-        patterns:
-          - 执行课
-        replacement: 执行科
-      - name: prison_phrase_gejianqujianquzhang
-        patterns:
-          - 各间区监区长
-          - 各监区间区长
-        replacement: 各监区监区长
-      - name: prison_phrase_jianquzhang
-        patterns:
-          - 间区长
-          - 监去长
-        replacement: 监区长
-      - name: prison_phrase_zhuitao
-        patterns:
-          - 追套
-        replacement: 追逃
-      - name: prison_phrase_lianqinlianzhidanyuan
-        patterns:
-          - 联勤联职单元
-          - 联勤联值单员
-        replacement: 联勤联值单元
-      - name: prison_phrase_lianqinlianzhi
-        patterns:
-          - 联勤联职
-          - 联情联值
-        replacement: 联勤联值
-      - name: prison_phrase_lianzhidanyuan
-        patterns:
-          - 联职单元
-          - 联值单员
-        replacement: 联值单元
-      - name: prison_phrase_heyibanjingcha
-        patterns:
-          - 合一班警察
-          - 和一班警察
-        replacement: 和衣班警察
-      - name: prison_phrase_jingcha
-        patterns:
-          - 警茶
-          - 景察
-        replacement: 警察
-      - name: prison_phrase_heyiban
-        patterns:
-          - 合一班
-          - 和一班
-        replacement: 和衣班
-      - name: prison_phrase_beiqinjingcha
-        patterns:
-          - 被勤警察
-          - 备勤警茶
-        replacement: 备勤警察
-      - name: prison_phrase_beiqin
-        patterns:
-          - 被勤
-          - 背勤
-        replacement: 备勤
+    - name: prison_phrase_user_001_e79b91e68980
+      patterns:
+      - 检索内
+      replacement: 监所内
+    - name: prison_phrase_user_002_e4b880e79b91
+      patterns:
+      - 一键锁
+      - 衣键锁
+      - 一间锁
+      - 衣间区
+      - 一间区
+      - 一键区
+      - 衣监区
+      - 衣监所
+      - 一监所
+      - 一监守
+      replacement: 一监区
+    - name: prison_phrase_user_003_e4ba8ce79b91
+      patterns:
+      - 二间区
+      - 二键区
+      - 二监去
+      - 二监所
+      - 二监守
+      replacement: 二监区
+    - name: prison_phrase_user_004_e4b889e79b91
+      patterns:
+      - 三间区
+      - 三键区
+      - 三监去
+      - 三监所
+      - 三监守
+      replacement: 三监区
+    - name: prison_phrase_user_005_e59b9be79b91
+      patterns:
+      - 四间区
+      - 四键区
+      - 四监去
+      - 四监所
+      - 四监守
+      replacement: 四监区
+    - name: prison_phrase_user_006_e4ba94e79b91
+      patterns:
+      - 五间区
+      - 五键区
+      - 五监去
+      - 五监所
+      - 五监守
+      replacement: 五监区
+    - name: prison_phrase_user_007_e585ade79b91
+      patterns:
+      - 六间区
+      - 六键区
+      - 六监去
+      - 六监所
+      - 六监守
+      replacement: 六监区
+    - name: prison_phrase_user_008_e4b883e79b91
+      patterns:
+      - 七间区
+      - 七键区
+      - 七监去
+      - 七监所
+      - 七监守
+      replacement: 七监区
+    - name: prison_phrase_user_009_e585abe79b91
+      patterns:
+      - 八间区
+      - 八键区
+      - 八监去
+      - 八监所
+      - 八监守
+      replacement: 八监区
+    - name: prison_phrase_user_010_e4b99de79b91
+      patterns:
+      - 九间区
+      - 九键区
+      - 九监去
+      - 九监所
+      - 九监守
+      replacement: 九监区
+    - name: prison_phrase_user_011_e58d81e79b91
+      patterns:
+      - 十间区
+      - 十键区
+      - 十监去
+      - 十监所
+      - 十监守
+      replacement: 十监区
+    - name: prison_phrase_user_012_e79b91e997a8
+      patterns:
+      - 尖门
+      - 间门
+      - 建门
+      replacement: 监门
+    - name: prison_phrase_user_013_e5b9b2e8ada6
+      patterns:
+      - 赶紧通道
+      - 干净通道
+      replacement: 干警通道
+    - name: prison_phrase_user_014_e8bda6e8a18c
+      patterns:
+      - 车型通道
+      - 车形通道
+      - 车行通到
+      replacement: 车行通道
+    - name: prison_phrase_user_015_e591a8e7958c
+      patterns:
+      - 州界
+      - 周届
+      - 周街
+      replacement: 周界
+    - name: prison_phrase_user_016_e79b91e5a299
+      patterns:
+      - 坚纯
+      - 坚强
+      - 肩强
+      - 堅强
+      - 间墙
+      - 建墙
+      replacement: 监墙
+    - name: prison_phrase_user_017_e99984e8bf91
+      patterns:
+      - 附件
+      - 附念
+      replacement: 附近
+    - name: prison_phrase_user_018_e782b9e4bd8d
+      patterns:
+      - 电位
+      - 点为
+      - 店位
+      - 典位
+      replacement: 点位
+    - name: prison_phrase_user_019_e69cbae58aa0
+      patterns:
+      - 即加工
+      replacement: 机加工
+    - name: prison_phrase_user_020_e79b91e68ea7
+      patterns:
+      - 监空
+      - 监孔
+      - 建控
+      replacement: 监控
+    - name: prison_phrase_user_021_e79b91e68ea7
+      patterns:
+      - 监空点
+      - 建控点
+      - 监控店
+      replacement: 监控点
+    - name: prison_phrase_user_022_e59b9ee694be
+      patterns:
+      - 回访
+      - 会放
+      - 回防
+      replacement: 回放
+    - name: prison_phrase_user_023_e69184e5838f
+      patterns:
+      - 摄像头
+      - 设像头
+      - 摄象头
+      replacement: 摄像头
+    - name: prison_phrase_user_024_e794b5e8a786
+      patterns:
+      - 电视强
+      - 电视墙面
+      replacement: 电视墙
+    - name: prison_phrase_user_025_e4b88ae5a299
+      patterns:
+      - 上强
+      - 上墙面
+      replacement: 上墙
+    - name: prison_phrase_user_026_e58886e5b18f
+      patterns:
+      - 分屏
+      - 分频
+      - 分平
+      replacement: 分屏
+    - name: prison_phrase_user_027_e4ba91e58fb0
+      patterns:
+      - 云台
+      - 云抬
+      - 云太
+      replacement: 云台
+    - name: prison_phrase_user_028_e9a284e7bdae
+      patterns:
+      - 预制位
+      - 预致位
+      - 预制为
+      replacement: 预置位
+    - name: prison_phrase_user_029_e5b7a1e888aa
+      patterns:
+      - 巡航
+      - 巡行
+      - 循航
+      replacement: 巡航
+    - name: prison_phrase_user_030_e68aa5e8ada6
+      patterns:
+      - 报警
+      - 保警
+      - 抱警
+      replacement: 报警
+    - name: prison_phrase_user_031_e997a8e7a681
+      patterns:
+      - 门禁
+      - 门进
+      - 门径
+      replacement: 门禁
+    - name: prison_phrase_user_032_e4bc99e688bf
+      patterns:
+      - 火房
+      replacement: 伙房
+    - name: prison_phrase_user_033_e4bc9ae8a781
+      patterns:
+      - 会建楼
+      - 汇见楼
+      - 会见喽
+      replacement: 会见楼
+    - name: prison_phrase_user_034_e79b91e58cba
+      patterns:
+      - 间区
+      - 监去
+      - 见区
+      replacement: 监区
+    - name: prison_phrase_user_035_e4b8a5e7aea1
+      patterns:
+      - 严管间区
+      - 严管监去
+      replacement: 严管监区
+    - name: prison_phrase_user_036_e79b91e58cba
+      patterns:
+      - 间区车间
+      - 监区车件
+      replacement: 监区车间
+    - name: prison_phrase_user_037_e78bb1e58685
+      patterns:
+      - 域内管控中心
+      - 玉内管控中心
+      - 狱内管控中兴
+      replacement: 狱内管控中心
+    - name: prison_phrase_user_038_e7aea1e68ea7
+      patterns:
+      - 管控中兴
+      - 管空中心
+      - 管控中信
+      replacement: 管控中心
+    - name: prison_phrase_user_039_e79b91e8888d
+      patterns:
+      - 监摄
+      - 间舍
+      - 建舍
+      replacement: 监舍
+    - name: prison_phrase_user_040_e59bbae5ae9a
+      patterns:
+      - 固定包坊
+      - 固定包防
+      replacement: 固定包房
+    - name: prison_phrase_user_041_e5aea3e4bca0
+      patterns:
+      - 宣传市
+      - 宣传是
+      replacement: 宣传室
+    - name: prison_phrase_user_042_e5908ee695b4
+      patterns:
+      - 后整理车件
+      replacement: 后整理车间
+    - name: prison_phrase_user_043_e695b4e79086
+      patterns:
+      - 整理车件
+      - 整理车建
+      replacement: 整理车间
+    - name: prison_phrase_user_044_e680bbe8a385
+      patterns:
+      - 总装车件
+      replacement: 总装车间
+    - name: prison_phrase_user_045_e4b88be69699
+      patterns:
+      - 下料车件
+      replacement: 下料车间
+    - name: prison_phrase_user_046_e7aea1e4bbb6
+      patterns:
+      - 管舰车间
+      - 管建车间
+      - 管健车间
+      - 管件车件
+      replacement: 管件车间
+    - name: prison_phrase_user_047_e7bc9de7baab
+      patterns:
+      - 逢纫车间
+      - 逢任车间
+      - 缝纫车件
+      replacement: 缝纫车间
+    - name: prison_phrase_user_048_e69cbae58aa0
+      patterns:
+      - 机加公车间
+      - 机加工车件
+      replacement: 机加工车间
+    - name: prison_phrase_user_049_e58aa0e5b7a5
+      patterns:
+      - 加工车件
+      - 加工车建
+      replacement: 加工车间
+    - name: prison_phrase_user_050_e69cbae58aa0
+      patterns:
+      - 机加工被车间
+      - 机加工北车件
+      replacement: 机加工北车间
+    - name: prison_phrase_user_051_e7ad92e5a3b3
+      patterns:
+      - 铜壳南车间
+      - 桶壳南车间
+      - 筒壳南车件
+      replacement: 筒壳南车间
+    - name: prison_phrase_user_052_e58d97e8bda6
+      patterns:
+      - 南车件
+      - 南车建
+      replacement: 南车间
+    - name: prison_phrase_user_053_e7ad92e5a3b3
+      patterns:
+      - 铜壳北车间
+      - 桶壳北车间
+      - 筒壳北车件
+      replacement: 筒壳北车间
+    - name: prison_phrase_user_054_e58c97e8bda6
+      patterns:
+      - 北车件
+      - 北车建
+      replacement: 北车间
+    - name: prison_phrase_user_055_e7ad92e5a3b3
+      patterns:
+      - 铜壳车间
+      - 桶壳车间
+      - 筒壳车件
+      replacement: 筒壳车间
+    - name: prison_phrase_user_056_e7ad92e5a3b3
+      patterns:
+      - 铜壳北外协办材料库
+      - 筒壳北外协办材料裤
+      replacement: 筒壳北外协办材料库
+    - name: prison_phrase_user_057_e5a496e58d8f
+      patterns:
+      - 外斜办
+      - 歪协办
+      - 外协伴
+      replacement: 外协办
+    - name: prison_phrase_user_058_e69d90e69699
+      patterns:
+      - 材料裤
+      - 材料苦
+      replacement: 材料库
+    - name: prison_phrase_user_059_e586b2e58e8b
+      patterns:
+      - 冲压车件
+      replacement: 冲压车间
+    - name: prison_phrase_user_060_e586b2e58e8b
+      patterns:
+      - 冲压外协办缝纫机裤
+      - 冲压外协办缝纫机苦
+      replacement: 冲压外协办缝纫机库
+    - name: prison_phrase_user_061_e7bc9de7baab
+      patterns:
+      - 缝纫机裤
+      - 缝纫机苦
+      replacement: 缝纫机库
+    - name: prison_phrase_user_062_e5a496e58d8f
+      patterns:
+      - 外协办陈品库
+      - 外协办成品裤
+      replacement: 外协办成品库
+    - name: prison_phrase_user_063_e68890e59381
+      patterns:
+      - 成品裤
+      - 陈品库
+      replacement: 成品库
+    - name: prison_phrase_user_064_e8a5bfe79b91
+      patterns:
+      - 西间区域
+      - 西监去域
+      replacement: 西监区域
+    - name: prison_phrase_user_065_e7949fe4baa7
+      patterns:
+      - 生产去域
+      replacement: 生产区域
+    - name: prison_phrase_user_066_e884b1e98083
+      patterns:
+      - 拖逃
+      replacement: 脱逃
+    - name: prison_phrase_user_067_e8a2ade8ada6
+      patterns:
+      - 习警
+      - 洗警
+      replacement: 袭警
+    - name: prison_phrase_user_068_e59384e79b91
+      patterns:
+      - 哄见闹事
+      - 轰监闹事
+      - 轰间闹事
+      - 哄间闹事
+      replacement: 哄监闹事
+    - name: prison_phrase_user_069_e997b9e4ba8b
+      patterns:
+      - 闹是
+      - 闹市
+      replacement: 闹事
+    - name: prison_phrase_user_070_e59384e79b91
+      patterns:
+      - 空间脑域
+      - 空间，脑域
+      - 空间
+      - 脑域
+      - 空间、脑域
+      - 哄见闹狱
+      - 轰监闹狱
+      replacement: 哄监闹狱
+    - name: prison_phrase_user_071_e997b9e78bb1
+      patterns:
+      - 闹欲
+      - 闹遇
+      replacement: 闹狱
+    - name: prison_phrase_user_072_e8a18ce587b6
+      patterns:
+      - 行胸
+      replacement: 行凶
+    - name: prison_phrase_user_073_e7bea4e6aeb4
+      patterns:
+      - 群欧
+      replacement: 群殴
+    - name: prison_phrase_user_074_e68c81e6a2b0
+      patterns:
+      - 持戒
+      - 持卸
+      replacement: 持械
+    - name: prison_phrase_user_075_e78bb1e5a496
+      patterns:
+      - 域外人员
+      - 欲外人员
+      replacement: 狱外人员
+    - name: prison_phrase_user_076_e586b2e587bb
+      patterns:
+      - 冲击尖狱
+      - 冲击监御
+      replacement: 冲击监狱
+    - name: prison_phrase_user_077_e7a6bbe79b91
+      patterns:
+      - 离间就医
+      - 离监救医
+      replacement: 离监就医
+    - name: prison_phrase_user_078_e7a6bbe79b91
+      patterns:
+      - 离间
+      replacement: 离监
+    - name: prison_phrase_user_079_e99c87e781be
+      patterns:
+      - 赈灾
+      replacement: 震灾
+    - name: prison_phrase_user_080_e580bce78fad
+      patterns:
+      - 值班主认
+      replacement: 值班主任
+    - name: prison_phrase_user_081_e680bbe580bc
+      patterns:
+      - 总值班帐
+      - 总值班章
+      replacement: 总值班长
+    - name: prison_phrase_user_082_e9a9bbe79b91
+      patterns:
+      - 助监武警部队
+      - 驻检武警部队
+      - 驻监武警部对
+      replacement: 驻监武警部队
+    - name: prison_phrase_user_083_e6ada6e8ada6
+      patterns:
+      - 武警部对
+      - 五警部队
+      replacement: 武警部队
+    - name: prison_phrase_user_084_e59084e68abc
+      patterns:
+      - 各押范单位
+      - 各压犯单位
+      replacement: 各押犯单位
+    - name: prison_phrase_user_085_e68abce78aaf
+      patterns:
+      - 压犯单位
+      replacement: 押犯单位
+    - name: prison_phrase_user_086_e694b9e980a0
+      patterns:
+      - 改造副尖狱长
+      - 改造副监御长
+      replacement: 改造副监狱长
+    - name: prison_phrase_user_087_e589afe79b91
+      patterns:
+      - 副尖狱长
+      - 副监御长
+      replacement: 副监狱长
+    - name: prison_phrase_user_088_e79b91e78bb1
+      patterns:
+      - 尖狱长
+      - 监御长
+      replacement: 监狱长
+    - name: prison_phrase_user_089_e78bb1e694bf
+      patterns:
+      - 预政科
+      - 狱政课
+      replacement: 狱政科
+    - name: prison_phrase_user_090_e78bb1e694bf
+      patterns:
+      - 预政科长
+      - 狱政课长
+      replacement: 狱政科长
+    - name: prison_phrase_user_091_e78bb1e694bf
+      patterns:
+      - 预政管理科
+      - 狱政管理课
+      replacement: 狱政管理科
+    - name: prison_phrase_user_092_e7aea1e79086
+      patterns:
+      - 管理课
+      replacement: 管理科
+    - name: prison_phrase_user_093_e78bb1e4bea6
+      patterns:
+      - 预侦科长
+      - 狱侦课长
+      replacement: 狱侦科长
+    - name: prison_phrase_user_094_e78bb1e4bea6
+      patterns:
+      - 预侦科
+      - 狱侦课
+      replacement: 狱侦科
+    - name: prison_phrase_user_095_e78bb1e58685
+      patterns:
+      - 狱内侦查科
+      - 域内侦察科
+      replacement: 狱内侦察科
+    - name: prison_phrase_user_096_e4bea6e5af9f
+      patterns:
+      - 侦查科
+      - 侦察课
+      replacement: 侦察科
+    - name: prison_phrase_user_097_e69599e882b2
+      patterns:
+      - 教育课长
+      replacement: 教育科长
+    - name: prison_phrase_user_098_e69599e882b2
+      patterns:
+      - 教育改造课
+      replacement: 教育改造科
+    - name: prison_phrase_user_099_e694b9e980a0
+      patterns:
+      - 改造课
+      replacement: 改造科
+    - name: prison_phrase_user_100_e58891e7bd9a
+      patterns:
+      - 刑罚课科长
+      - 刑法科科长
+      replacement: 刑罚科科长
+    - name: prison_phrase_user_101_e58891e7bd9a
+      patterns:
+      - 刑罚课长
+      - 刑法科长
+      replacement: 刑罚科长
+    - name: prison_phrase_user_102_e58891e7bd9a
+      patterns:
+      - 刑罚执行课
+      replacement: 刑罚执行科
+    - name: prison_phrase_user_103_e689a7e8a18c
+      patterns:
+      - 执行课
+      replacement: 执行科
+    - name: prison_phrase_user_104_e59084e79b91
+      patterns:
+      - 各间区监区长
+      - 各监区间区长
+      replacement: 各监区监区长
+    - name: prison_phrase_user_105_e79b91e58cba
+      patterns:
+      - 间区长
+      - 监去长
+      replacement: 监区长
+    - name: prison_phrase_user_106_e8bfbde98083
+      patterns:
+      - 追套
+      replacement: 追逃
+    - name: prison_phrase_user_107_e88194e58ba4
+      patterns:
+      - 联勤联职单元
+      - 联勤联值单员
+      replacement: 联勤联值单元
+    - name: prison_phrase_user_108_e88194e58ba4
+      patterns:
+      - 联勤联职
+      - 联情联值
+      replacement: 联勤联值
+    - name: prison_phrase_user_109_e88194e580bc
+      patterns:
+      - 联职单元
+      - 联值单员
+      replacement: 联值单元
+    - name: prison_phrase_user_110_e5928ce8a1a3
+      patterns:
+      - 合一班警察
+      - 和一班警察
+      replacement: 和衣班警察
+    - name: prison_phrase_user_111_e8ada6e5af9f
+      patterns:
+      - 警茶
+      - 景察
+      replacement: 警察
+    - name: prison_phrase_user_112_e5928ce8a1a3
+      patterns:
+      - 合一班
+      - 和一班
+      replacement: 和衣班
+    - name: prison_phrase_user_113_e5a487e58ba4
+      patterns:
+      - 被勤警察
+      - 备勤警茶
+      replacement: 备勤警察
+    - name: prison_phrase_user_114_e5a487e58ba4
+      patterns:
+      - 被勤
+      - 背勤
+      replacement: 备勤
     confusion_rules:
-      - name: prison_confusion_jiansuo
-        source_terms:
-          - 检索
-        target_term: 监所
-        context_keywords:
-          监所内: 3
-          监区: 3
-          监舍: 3
-          监门: 3
-          通道: 2
-          散步: 2
-          狱: 2
-          监: 1
-          内: 1
-        negative_keywords:
-          全文: 3
-          文档: 2
-          搜索: 2
-          检索库: 3
-        threshold: 2
-        window: 6
-      - name: prison_confusion_jianqiang
-        source_terms:
-          - 坚强
-          - 肩强
-        target_term: 监墙
-        context_keywords:
-          点位: 3
-          附近: 2
-          周界: 2
-          打开: 1
-          监区: 1
-        negative_keywords:
-          意志: 3
-          勇敢: 2
-          性格: 2
-        threshold: 2
-        window: 8
-      - name: prison_confusion_dianwei
-        source_terms:
-          - 电位
-          - 定位
-          - 店位
-          - 点为
-        target_term: 点位
-        context_keywords:
-          打开: 2
-          监区: 2
-          监墙: 3
-          周界: 3
-          附近: 2
-        negative_keywords:
-          手机: 3
-          GPS: 3
-          导航: 3
-          位置: 2
-        threshold: 2
-        window: 8
+    - name: prison_confusion_jiansuo
+      source_terms:
+      - 检索
+      target_term: 监所
+      context_keywords:
+        监所内: 3
+        监区: 3
+        监舍: 3
+        监门: 3
+        通道: 2
+        散步: 2
+        狱: 2
+        监: 1
+        内: 1
+      negative_keywords:
+        全文: 3
+        文档: 2
+        搜索: 2
+        检索库: 3
+      threshold: 2
+      window: 6
+    - name: prison_confusion_jianqiang
+      source_terms:
+      - 坚强
+      - 肩强
+      - 堅强
+      target_term: 监墙
+      context_keywords:
+        点位: 3
+        附近: 2
+        周界: 2
+        打开: 1
+        监区: 1
+      negative_keywords:
+        意志: 3
+        勇敢: 2
+        性格: 2
+      threshold: 2
+      window: 8
+    - name: prison_confusion_dianwei
+      source_terms:
+      - 电位
+      - 定位
+      - 店位
+      - 点为
+      - 典位
+      target_term: 点位
+      context_keywords:
+        打开: 2
+        监区: 2
+        监墙: 3
+        周界: 3
+        附近: 2
+      negative_keywords:
+        手机: 3
+        GPS: 3
+        导航: 3
+        位置: 2
+      threshold: 2
+      window: 8

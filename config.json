@@ -1,24 +1,41 @@
 {
   "asr": {
-    "backend": "paraformer",
+    "backend": "paraformer_onnx",
     "device": "cuda",
     "cuda_bin_dir": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.6\\bin",
     "compute_type": "int8_float32",
-    "model_path": "faster-whisper-large-v3-turbo",
+    "model_path": "models/faster-whisper-large-v3-turbo",
     "funasr_nano": {
       "model_path": "models/Fun-ASR-Nano-2512",
       "vad_model_path": "models/speech_fsmn_vad_zh-cn-16k-common-pytorch",
       "use_prompt_terms_as_hotwords": true,
       "hotword_mode": "full",
-      "max_hotwords": 200,
+      "max_hotwords": 1000,
       "hotwords": []
     },
     "paraformer": {
       "model_path": "models/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
       "use_prompt_terms_as_hotwords": true,
       "hotword_mode": "full",
-      "max_hotwords": 200,
+      "max_hotwords": 1000,
       "hotwords": []
+    },
+    "paraformer_onnx": {
+      "model_path": "models/paraformer-seaco-large-zh-timestamp-int8-onnx-offline",
+      "use_prompt_terms_as_hotwords": true,
+      "hotword_mode": "full",
+      "max_hotwords": 1000,
+      "hotwords": []
+    },
+    "sherpa_onnx": {
+      "model_path": "models/sherpa-onnx-zipformer-zh-en-2023-11-22",
+      "use_prompt_terms_as_hotwords": true,
+      "hotword_mode": "compact",
+      "max_hotwords": 1000,
+      "hotwords": [],
+      "hotwords_score": 1.5,
+      "num_threads": 2,
+      "decoding_method": "modified_beam_search"
     },
     "cuda_suspicious_min_chars_per_s": 1,
     "auto_fallback_language": "zh",
@@ -34,15 +51,17 @@
     "default_domain": "prison"
   },
   "asr_correction": {
-    "enabled": false,
-    "api_url": "http://10.199.118.33:1234/v1/chat/completions",
-    "model": "qwen3.5-2b",
+    "enabled": true,
+    "api_url": "https://api.qnaigc.com/v1/chat/completions",
+    "api_style": "openai",
+    "model": "minimax/minimax-m2.1",
     "temperature": 0.2,
     "api_key": "",
-    "system_prompt": "你是监所场景的 ASR 文本纠错助手，专门处理监区广播、门禁指令、应急处置、警情上报中的语音识别错误。\n任务：只修正 ASR 导致的同音字、近音词、错别字、漏字和明显不通顺表达。\n核心原则：最小修改，只改错字，不改含义。\n要求：\n1. 保持原意，不扩写，不缩写，不解释，不总结，不添加新信息。\n2. 不得凭空新增人物、地点、动作、警情、命令、处置措施。\n3. 不得把一种警情改成另一种警情，不得把一种地点改成另一种地点，不得把一句描述改写成另一条指令。\n4. 编号、数量、方位、地点名必须严格保留，例如：一监区、五号监区、生产区、监舍、监门、会见楼、车间、通道。只有在明显同音误识别时才允许做最小修正。\n5. 动作词必须严格保留，例如：打开、关闭、集合、巡查、施救、冲击。除非明显识别错误，否则不要替换成别的动作。\n6. 警情词必须严格保留，例如：冲击监狱、哄监闹狱、哄监闹事、脱逃、袭警、持械。不要把它们改成别的警情或地点。\n7. 遇到明显口语化播报场景时，优先修正为监所业务里合理的词，而不是日常通用词。\n8. 如果原文已经正确，保持不变。\n9. 只输出纠正后的最终文本，不要输出分析。\n反例：\n- 有人在冲击监狱前打开5号监区的门 不能改成 有人冲击一监区，请和衣班警察前去开门\n- 请打开监舍的门 不能改成 请打开监区的门\n示例：\n- 在三监区云岛，请和衣班警察前去识别 -> 在三监区晕倒，请和衣班警察前去施救\n- 请打开衣监所的门 -> 请打开一监区的门\n- 系统支持全文检索 -> 系统支持全文检索",
+    "token": "sk-8de01b413fb7d1718e28015d9fa9d1d12f3f03f99b58ac623e16d22344af3383",
+    "system_prompt": "你是监所场景的 ASR 文本纠错助手，专门处理监区广播、门禁指令、应急处置、警情上报中的语音识别错误。\n任务：只修正 ASR 导致的同音字、近音词、错别字、漏字和明显不通顺表达，并在不改变原意的前提下补全必要的中文标点符号。\n核心原则：最小修改，只改错字，不改含义。\n要求：\n1. 保持原意，不扩写，不缩写，不解释，不总结，不添加新信息。\n2. 不得凭空新增人物、地点、动作、警情、命令、处置措施。\n3. 不得把一种警情改成另一种警情，不得把一种地点改成另一种地点，不得把一句描述改写成另一条指令。\n4. 编号、数量、方位、地点名必须严格保留，例如：一监区、五号监区、生产区、监舍、监门、会见楼、车间、通道。只有在明显同音误识别时才允许做最小修正。\n5. 动作词必须严格保留，例如：打开、关闭、集合、巡查、施救、冲击、调出。除非明显识别错误，否则不要替换成别的动作。\n6. 警情词必须严格保留，例如：冲击监狱、哄监闹狱、哄监闹事、脱逃、袭警、持械。不要把它们改成别的警情或地点。\n7. 允许根据中文口语播报习惯补充逗号、顿号、句号等必要标点，但只能做断句和可读性增强，不能借此改变句意。\n8. 遇到明显口语化播报场景时，优先修正为监所业务里合理的词，而不是日常通用词。\n9. 如果原文已经正确，保持不变。\n10. 只输出纠正后的最终文本，不要输出分析。\n反例：\n- 有人在冲击监狱前打开5号监区的门 不能改成 有人冲击一监区，请和衣班警察前去开门\n- 请打开监舍的门 不能改成 请打开监区的门\n示例：\n- 在三监区云岛，请和衣班警察前去识别 -> 在三监区晕倒，请和衣班警察前去施救\n- 请打开衣监所的门 -> 请打开一监区的门\n- 系统支持全文检索 -> 系统支持全文检索\n- 请在机加工北车间值班的备勤警察马上到严管监区的监墙南侧集合这边有人哄监闹事同时打开三监区的门禁调出第七监区和第五监区的视频 -> 请在机加工北车间值班的备勤警察马上到严管监区的监墙南侧集合，这边有人哄监闹事，同时打开三监区的门禁，调出第七监区和第五监区的视频。",
     "connect_timeout_s": 3.0,
-    "read_timeout_s": 30.0,
-    "total_timeout_s": 8.0,
+    "read_timeout_s": 60.0,
+    "total_timeout_s": 60.0,
     "max_retries": 1,
     "backoff_s": 0.4,
     "use_system_proxy": false

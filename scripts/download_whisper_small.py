@@ -14,7 +14,7 @@ def project_root() -> Path:
 
 
 def target_root() -> Path:
-    return project_root() / "faster-whisper-small"
+    return project_root() / "models" / "faster-whisper-small"
 
 
 def is_non_empty_file(path: Path) -> bool:
@@ -42,7 +42,7 @@ def main() -> int:
     try:
         from huggingface_hub import snapshot_download
     except Exception as exc:  # noqa: BLE001
-        raise RuntimeError("未安装 huggingface-hub，请先执行 pip install -r requirements.txt") from exc
+        raise RuntimeError("未安装 huggingface-hub，请先执行 pip install -r requirements-cpu.txt 或 requirements-gpu.txt") from exc
 
     print(f"[mirror] {HF_ENDPOINT}")
     print(f"[manual] {MODEL_PAGE_URL}")

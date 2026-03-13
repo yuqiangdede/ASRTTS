@@ -28,6 +28,7 @@ class AsrCorrectionClient:
         self.enabled = bool(config.get("enabled", False))
         self.api_url = str(config.get("api_url", "http://localhost:1234/v1/chat/completions") or "").strip()
         self.model = str(config.get("model", "qwen3.5-2b") or "").strip()
+        self.api_style = str(config.get("api_style", "auto") or "auto").strip().lower()
         self.system_prompt = str(
             config.get(
                 "system_prompt",
@@ -41,22 +42,39 @@ class AsrCorrectionClient:
             )
             or ""
         ).strip()
-        self.api_key = str(config.get("api_key", "") or "").strip() or None
+        token = str(config.get("token", "") or "").strip()
+        api_key = str(config.get("api_key", "") or "").strip()
+        self.api_key = api_key or token or None
         self.temperature = float(config.get("temperature", 0.2) or 0.2)
         self.connect_timeout_s = float(config.get("connect_timeout_s", 3.0) or 3.0)
         self.read_timeout_s = float(config.get("read_timeout_s", 30.0) or 30.0)
-        self.total_timeout_s = float(config.get("total_timeout_s", self.connect_timeout_s + self.read_timeout_s) or (self.connect_timeout_s + self.read_timeout_s))
+        configured_total_timeout = config.get("total_timeout_s", None)
+        if configured_total_timeout in (None, ""):
+            self.total_timeout_s = self.connect_timeout_s + self.read_timeout_s
+        else:
+            self.total_timeout_s = float(configured_total_timeout or 0.0)
+        # urllib 这里只接受一个 timeout 参数，避免 total_timeout 比读取超时更短导致提前超时。
+        self.total_timeout_s = max(self.total_timeout_s, self.connect_timeout_s, self.read_timeout_s)
         self.max_retries = int(config.get("max_retries", 1) or 1)
         self.backoff_s = float(config.get("backoff_s", 0.4) or 0.4)
         self.use_system_proxy = bool(config.get("use_system_proxy", False))
 
-    def _build_system_prompt(self, *, domain: str | None = None, prompt_terms: list[str] | None = None) -> str:
+    def _build_system_prompt(
+        self,
+        *,
+        domain: str | None = None,
+        prompt_terms: list[str] | None = None,
+        phrase_rule_hints: list[str] | None = None,
+    ) -> str:
         parts = [self.system_prompt]
         if domain:
             parts.append(f"当前业务域：{domain}。")
         terms = [str(item).strip() for item in (prompt_terms or []) if str(item).strip()]
         if terms:
             parts.append(f"优先保留或修正为以下业务词汇：{'，'.join(terms)}。")
+        hints = [str(item).strip() for item in (phrase_rule_hints or []) if str(item).strip()]
+        if hints:
+            parts.append(f"常见近音纠正规则参考：{'；'.join(hints)}。")
         return "\n".join(part for part in parts if part)
 
     def _extract_text(self, data: Any) -> str:
@@ -117,6 +135,11 @@ class AsrCorrectionClient:
         url = self.api_url
         if not url:
             return candidates
+
+        if self.api_style == "openai":
+            return [("openai", url)]
+        if self.api_style == "legacy":
+            return [("legacy", url)]
 
         if url.endswith("/v1/chat/completions"):
             candidates.append(("openai", url))
@@ -185,13 +208,25 @@ class AsrCorrectionClient:
         except json.JSONDecodeError as exc:
             raise AsrCorrectionError(f"纠错接口返回了无效 JSON：{exc}") from exc
 
-    def correct(self, text: str, *, domain: str | None = None, prompt_terms: list[str] | None = None) -> str:
+    def correct(
+        self,
+        text: str,
+        *,
+        domain: str | None = None,
+        prompt_terms: list[str] | None = None,
+        phrase_rule_hints: list[str] | None = None,
+    ) -> str:
         content = str(text or "").strip()
         if not content or not self.enabled:
             return content
 
         full_terms = [str(item).strip() for item in (prompt_terms or []) if str(item).strip()]
-        system_prompt = self._build_system_prompt(domain=domain, prompt_terms=full_terms)
+        full_phrase_rule_hints = [str(item).strip() for item in (phrase_rule_hints or []) if str(item).strip()]
+        system_prompt = self._build_system_prompt(
+            domain=domain,
+            prompt_terms=full_terms,
+            phrase_rule_hints=full_phrase_rule_hints,
+        )
         candidates = self._build_candidates()
         if not candidates:
             raise AsrCorrectionError("未配置有效的纠错接口地址。")
@@ -201,7 +236,7 @@ class AsrCorrectionClient:
             for style, url in candidates:
                 payload = self._build_payload(style=style, system_prompt=system_prompt, content=content)
                 logger.info(
-                    "ASR LLM correction request: style=%s url=%s model=%s temperature=%s attempt=%s domain=%s prompt_terms=%s",
+                    "ASR LLM correction request: style=%s url=%s model=%s temperature=%s attempt=%s domain=%s prompt_terms=%s phrase_rule_hints=%s",
                     style,
                     url,
                     self.model,
@@ -209,6 +244,7 @@ class AsrCorrectionClient:
                     attempt + 1,
                     domain or "",
                     ",".join(full_terms),
+                    " | ".join(full_phrase_rule_hints),
                 )
                 logger.info("ASR LLM correction proxy mode: use_system_proxy=%s", self.use_system_proxy)
                 logger.info("ASR LLM correction prompt(system): %s", _clip_log_text(system_prompt))
@@ -228,8 +264,19 @@ class AsrCorrectionClient:
                     )
                     return corrected
                 except error.HTTPError as exc:
+                    error_body = ""
+                    try:
+                        error_body = exc.read().decode("utf-8", errors="replace")
+                    except Exception:
+                        error_body = ""
                     last_error = AsrCorrectionError(f"纠错接口返回 HTTP {exc.code}")
-                    logger.warning("ASR LLM correction HTTP error: style=%s url=%s code=%s", style, url, exc.code)
+                    logger.warning(
+                        "ASR LLM correction HTTP error: style=%s url=%s code=%s body=%s",
+                        style,
+                        url,
+                        exc.code,
+                        _clip_log_text(error_body),
+                    )
                 except error.URLError as exc:
                     last_error = AsrCorrectionError(f"纠错接口连接失败：{exc.reason}")
                     logger.warning("ASR LLM correction URL error: style=%s url=%s reason=%s", style, url, exc.reason)

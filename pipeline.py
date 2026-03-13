@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class AsrEnhancementPipeline:
+    _PHRASE_RULE_HINT_LIMIT = 24
+    _PHRASE_RULE_HINT_CHAR_LIMIT = 600
+
     def __init__(self, config_loader: DomainConfigLoader, *, default_domain: str, correction_client: Any | None = None) -> None:
         self.config_loader = config_loader
         self.default_domain = default_domain
@@ -108,12 +111,14 @@ class AsrEnhancementPipeline:
         if not current or self.correction_client is None or not getattr(self.correction_client, "enabled", False):
             return current, [], ""
 
+        phrase_rule_hints = self._build_phrase_rule_hints(getattr(profile, "phrase_rules", []))
         try:
             corrected = str(
                 self.correction_client.correct(
                     current,
                     domain=profile.name,
                     prompt_terms=profile.prompt_terms,
+                    phrase_rule_hints=phrase_rule_hints,
                 )
                 or ""
             ).strip()
@@ -158,6 +163,36 @@ class AsrEnhancementPipeline:
             ],
             "",
         )
+
+    @classmethod
+    def _build_phrase_rule_hints(cls, phrase_rules: list[dict[str, Any]]) -> list[str]:
+        hints: list[str] = []
+        total_chars = 0
+
+        for rule in phrase_rules:
+            if len(hints) >= cls._PHRASE_RULE_HINT_LIMIT:
+                break
+            if not isinstance(rule, dict):
+                continue
+
+            replacement = str(rule.get("replacement", "") or "").strip()
+            patterns = [str(item).strip() for item in rule.get("patterns", []) if str(item).strip()]
+            if not replacement or not patterns:
+                continue
+
+            pattern_preview = "、".join(patterns[:4])
+            if len(patterns) > 4:
+                pattern_preview = f"{pattern_preview} 等"
+
+            hint = f"{pattern_preview} => {replacement}"
+            projected_chars = total_chars + len(hint)
+            if hints and projected_chars > cls._PHRASE_RULE_HINT_CHAR_LIMIT:
+                break
+
+            hints.append(hint)
+            total_chars = projected_chars
+
+        return hints
 
     @staticmethod
     def _collect_protected_terms(text: str, prompt_terms: list[str]) -> list[str]:

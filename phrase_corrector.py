@@ -23,7 +23,7 @@ class PhraseCorrector:
             )
             current = normalized
 
-        for rule in rules:
+        for rule in self._sort_rules_for_matching(rules):
             replacement = str(rule.get("replacement", "") or "").strip()
             patterns = [str(item).strip() for item in rule.get("patterns", []) if str(item).strip()]
             rule_name = str(rule.get("name", replacement or "phrase_rule") or "phrase_rule")
@@ -47,6 +47,18 @@ class PhraseCorrector:
                 )
 
         return current, applied
+
+    @staticmethod
+    def _sort_rules_for_matching(rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        indexed_rules = list(enumerate(rules))
+
+        def sort_key(item: tuple[int, dict[str, Any]]) -> tuple[int, int]:
+            index, rule = item
+            patterns = [str(value).strip() for value in rule.get("patterns", []) if str(value).strip()]
+            max_len = max((len(pattern) for pattern in patterns), default=0)
+            return (-max_len, index)
+
+        return [rule for _, rule in sorted(indexed_rules, key=sort_key)]
 
     @staticmethod
     def normalize_text(text: str) -> str:
